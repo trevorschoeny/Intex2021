@@ -1,5 +1,7 @@
 from django.shortcuts import render
 
+from WebApp.models import PdDrugs
+
 # Create your views here.
 
 def indexPageView(request) :
@@ -9,7 +11,13 @@ def prescribersPageView(request) :
     return render(request, 'webapp/prescribers.html')
 
 def drugsPageView(request) :
-    return render(request, 'webapp/drugs.html')
+    data = PdDrugs.objects.all()
+
+    context = {
+        "drugs" : data
+    }
+
+    return render(request, 'webapp/drugs.html', context)
 
 def prescriberDetailPageView(request) :
     return render(request, 'webapp/prescriberdetail.html')
