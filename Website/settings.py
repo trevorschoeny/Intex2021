@@ -79,9 +79,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'drugs',
-        'USER': 'postgres',
+        'USER': 'trevorschoeny',
         'PASSWORD': 'WasteLand14',
-        'HOST': 'localhost'
+        'HOST': 'is415-trevorschoeny.postgres.database.azure.com'
     }
 }
 
