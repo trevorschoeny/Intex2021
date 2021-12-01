@@ -13,3 +13,9 @@ def drugsPageView(request) :
 
 def prescriberDetailPageView(request) :
     return render(request, 'webapp/prescriberdetail.html')
+
+def aboutPageView(request) :
+    return render(request, 'webapp/about.html')
+
+def contactPageView(request) :
+    return render(request, 'webapp/contact.html')
