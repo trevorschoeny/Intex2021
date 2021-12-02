@@ -9,7 +9,7 @@
             <div class="col-lg-6">
                 <div class="text-center mb-4">
                     <h1 class="fw-bolder">Prescription Drugs</h1>
-                    <p class="lead fw-normal text-muted mb-0">Opioid drugs are labeled in blue.</p>
+                    <p class="lead fw-normal text-muted mb-0">Opioid drugs are shown in blue.</p>
                 </div>
             </div>
         </div>
@@ -17,7 +17,7 @@
         <form name="form" method="get" action="{% url 'drugsearch'%}">
             <div class="container">
                 <div class="form-floating mb-3">
-                    <input class="form-control" id="name_contains" type="tel" name="name_contains" placeholder="Abilify" value=""/>
+                    <input class="form-control" id="name_contains" type="tel" name="name_contains" placeholder="placeholder" value=""/>
                     <label for="name_contains">Search for a drug:</label>
                 </div>
             </div>
@@ -30,23 +30,20 @@
             </div>
         </form>
         <!-- Results -->
-        <div class="container px-5 my-2">
-            <div class="row gx-5">
-                <div class="col">
-                    <div class="row gx-5 row-cols-1 row-cols-md-3">
-                        {% for drug in drugs %}
-                            {% if drug.isopioid == 'True' %}
-                                <a class="lead fw-normal mb-0" href="{% url 'drugdetail' drug_id=drug.drugid %}"><strong class="text-primary">{{ drug.drugname|format_me:"." }}</strong></a>
-                            {% else %}
-                                <a class="lead fw-normal text-muted mb-0" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|format_me:"." }}</a>
-                            {% endif %}
-                        {% endfor %}
+        <div class="container">
+            <div class="row">
+                    {% for drug in drugs %}
+                    <div class="col-md-auto py-2">
+                        {% if drug.isopioid == 'True' %}
+                                <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|format_me:"." }}</a>
+                        {% else %}
+                                <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|format_me:"." }}</a>                            
+                        {% endif %}
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
-
-        <!-- Results -->
     </div>
 </section>
 {% endblock %}

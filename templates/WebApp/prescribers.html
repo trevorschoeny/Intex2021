@@ -1,30 +1,45 @@
 {% extends 'base.html'%}
 {% load static %}
+{% load custom_tags %}
 {% block content %}
 <!-- Page Content-->
 <section class="py-5">
     <div class="container px-5 my-5">
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-6">
-                <div class="text-center mb-5">
-                    <h1 class="fw-bolder">Project Title</h1>
-                    <p class="lead fw-normal text-muted mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab similique, ducimus ut alias sit accusamus illum, asperiores deserunt dolorum quaerat qui! Ab, quisquam explicabo magni dolores unde beatae quam a.</p>
+                <div class="text-center mb-4">
+                    <h1 class="fw-bolder">Prescribers</h1>
+                    <p class="lead fw-normal text-muted mb-0">Prescribers licensed to prescribe opioids are shown in blue.</p>
                 </div>
             </div>
         </div>
-        <div class="row gx-5">
-            <div class="col-12"><img class="img-fluid rounded-3 mb-5" src="https://dummyimage.com/1300x700/343a40/6c757d" alt="..." /></div>
-            <div class="col-lg-6"><img class="img-fluid rounded-3 mb-5" src="https://dummyimage.com/600x400/343a40/6c757d" alt="..." /></div>
-            <div class="col-lg-6"><img class="img-fluid rounded-3 mb-5" src="https://dummyimage.com/600x400/343a40/6c757d" alt="..." /></div>
-        </div>
-        <div class="row gx-5 justify-content-center">
-            <div class="col-lg-6">
-                <div class="text-center mb-5">
-                    <p class="lead fw-normal text-muted">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Totam deserunt architecto enim eos accusantium fugit recusandae illo iste dignissimos possimus facere ducimus odit voluptatibus exercitationem, ex laudantium illum voluptatum corporis.</p>
-                    <a class="text-decoration-none" href="#!">
-                        View project
-                        <i class="bi-arrow-right"></i>
-                    </a>
+        <!-- Search -->
+        <form name="form" method="get" action="{% url 'prescribersearch'%}">
+            <div class="container">
+                <div class="form-floating mb-3">
+                    <input class="form-control" id="first_name_contains" type="tel" name="first_name_contains" placeholder="placeholder" value=""/>
+                    <label for="name_contains">First Name:</label>
+                </div>
+            </div>
+            <div class="text-center mb-5">
+                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Search</button>
+            </div>
+        </form>
+        <!-- Results -->
+        <div class="container">
+            <div class="row">
+                    {% for prescriber in prescribers %}
+                    <div class="col-md-auto py-2">
+                        {% if prescriber.isopioidprescriber == 'TRUE' %}
+                                <a class="btn btn-outline-primary" href="{% url 'index' %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
+                        {% else %}
+                                <a class="btn btn-outline-secondary" href="{% url 'index' %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>                            
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="col-md-auto pt-3">
+                        <p class="lead fw-normal text-muted mb-0">. . . search to find more.</p>
+                    </div>
                 </div>
             </div>
         </div>

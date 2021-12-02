@@ -3,42 +3,48 @@
 {% load custom_tags %}
 {% block content %}
 <!-- Page Content-->
-<section class="py-5">
-    <div class="container px-0 my-0">
-        <a class="lead fw-normal mb-0" href="{% url 'drugs' %}">Back</a>
+<section class="container py-5">
+    <div class="container pt-5">
+        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'drugs' %}">Back</a>
     </div>
-    <div class="container px-5 my-5">
-        <div class="row gx-5 justify-content-center">
-            <div class="col-lg-6">
-                <div class="text-center mb-5">
-                    {% if drug.isopioid == 'True' %}
-                    <h1 class="fw-bolder"><div class="text-primary">{{ drug.drugname|format_me:"." }}</div></h1>
-                        <p class="lead fw-normal text-muted mb-0">Opioid</p>
-                    {% else %}
-                    <h1 class="fw-bolder">{{ drug.drugname|format_me:"." }}</h1>
-                        <p class="lead fw-normal text-muted mb-0">Not Opioid</p>
-                    {% endif %}
+    <div class="text-center mb-5">
+        {% if drug.isopioid == 'True' %}
+        <h1 class="fw-bolder"><div class="text-primary">{{ drug.drugname|format_me:"." }}</div></h1>
+            <p class="lead fw-normal text-muted mb-0">Opioid</p>
+        {% else %}
+        <h1 class="fw-bolder">{{ drug.drugname|format_me:"." }}</h1>
+            <p class="lead fw-normal text-muted mb-0">Not Opioid</p>
+        {% endif %}
+    </div>
+
+    <!-- Top Providers -->
+    <div class="container">
+        <h3 class="mb-0">Top Providers</h3>
+        <p class="fw-normal text-muted mb-3">and total {{ drug.drugname|format_me:"." }} prescribed</p>
+    </div>
+    <div class="container px-4 mt-2 mb-5">
+        <div class="row">
+                {% for prescriber in prescribers %}
+                <div class="col-md-auto py-2">
+                    <a class="btn btn-outline-secondary" href="{% url 'index' %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }} ({{ prescriber.qty}})</a>
                 </div>
+                {% endfor %}
             </div>
         </div>
-        <!-- Results -->
-        <div class="container px-5 my-2">
-            <div class="row gx-5">
-                <div class="col">
-                    <div class="row gx-5 row-cols-1 row-cols-md-3">
-                        {% for drug in drugs %}
-                            {% if drug.isopioid == 'True' %}
-                                <a class="lead fw-normal mb-0" href="{% url 'prescribers' %}"><strong class="text-primary">{{ drug.drugname|format_me:"." }}</strong></a>
-                            {% else %}
-                                <a class="lead fw-normal text-muted mb-0" href="{% url 'prescribers' %}">{{ drug.drugname|format_me:"." }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+    </div>
+    
+    <!-- Recommended Providers -->
+    <div class="container">
+        <h3 class="mb-3">Recommended Providers</h3>
+    </div>
+    <div class="container px-4 mt-2 mb-5">
+        <div class="row">
+                {% for prescriber in prescribers %}
+                <div class="col-md-auto py-2">
+                    <a class="btn btn-outline-secondary" href="#">Recommended Provider</a>
                 </div>
+                {% endfor %}
             </div>
-        </div>
-        <br><br>
-        <div>
         </div>
     </div>
 </section>
