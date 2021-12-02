@@ -14,11 +14,11 @@
             </div>
         </div>
         <!-- Search -->
-        <form name="form" method="get" action="{% url 'drugsearch'%}">
+        <form name="form" method="get" action="{% url 'drugsearch' search=name_contains %}">
             <div class="container">
                 <div class="form-floating mb-3">
-                    <input class="form-control" id="name_contains" type="tel" name="name_contains" placeholder="Abilify" value=""/>
-                    <label for="name_contains">Search for a drug:</label>
+                    <input class="form-control" id="name_contains" type="tel" name="name_contains" placeholder="Abilify"/>
+                    <label for="name_contains">Search For a Drug:</label>
                 </div>
             </div>
             <div class="form-check form-switch mx-3">
