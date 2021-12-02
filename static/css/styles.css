@@ -11308,3 +11308,8 @@ html {
   background-repeat: no-repeat;
   min-height: 15rem;
 }
+
+.form-floating-group input {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
