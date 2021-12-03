@@ -15,8 +15,8 @@
         </div>
 
         <!-- Search -->
-        <form name="form" method="get" action="{% url 'prescribersearch'%}">
-            <div class="row g-3">
+        <form class="container mx-1" name="form" method="get" action="{% url 'prescribersearch'%}">
+            <div class="row">
 
                 <!-- Name -->
                 <div class="col-8">
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row g-3">
+            <div class="row">
                 
                 <!-- State -->
                 <div class="col">
@@ -96,7 +96,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row g-3 py-3">
+            <div class="row py-3">
                     
                 <!-- Licenced for Opioid -->
                 <div class="col">
@@ -117,6 +117,7 @@
 
         <!-- Results -->
         <div class="container">
+            <h3>{{ result_count }} Results:</h3>
             <div class="row">
                     {% for prescriber in prescribers %}
                     <div class="col-md-auto py-2">

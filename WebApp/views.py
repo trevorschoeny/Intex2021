@@ -10,8 +10,11 @@ def indexPageView(request) :
 def drugsPageView(request) :
     data = PdDrugs.objects.all()
 
+    result_count = data.count()
+
     context = {
-        "drugs" : data
+        "drugs" : data,
+        "result_count" : result_count
     }
 
     return render(request, 'webapp/drugs.html', context)
@@ -28,8 +31,11 @@ def drugSearchPageView(request) :
     if is_opioid :
         data = data.filter(isopioid=True)
 
+    result_count = data.count()
+
     context = {
-        "drugs" : data
+        "drugs" : data,
+        "result_count" : result_count
     }
 
     return render(request, 'webapp/drugs.html', context)
@@ -52,12 +58,16 @@ def drugDetailPageView(request, drug_id) :
 
 def prescribersPageView(request) :
 
-    data = PdPrescriber.objects.raw("select * from pd_prescriber limit 201")
+    data = PdPrescriber.objects.all()[0:100]
     state_data = PdStatedata.objects.all()
+
+    result_count = data.count()
+    result_count = str(result_count) + '+'
 
     context = {
         "prescribers" : data,
-        "states" : state_data
+        "states" : state_data,
+        "result_count" : result_count
     }
 
     return render(request, 'webapp/prescribers.html', context)
@@ -75,8 +85,13 @@ def prescriberSearchPageView(request) :
     opioid_level = request.GET.get('opioid_level_select')
     is_licensed = request.GET.get('licensed_check')
 
+    for state_i in state_data :
+        if state_i.state == state :
+            state = state_i.stateabbrev
+
     if name_contains != '' :
         data = data.filter( Q(fname__icontains=name_contains) | Q(lname__icontains=name_contains))
+        # data = data.raw("select * from pd_prescriber where fname like '%" + name_contains + "%' or lname like '%" + name_contains + "%'")
     
     if gender != 'Select' :
         data = data.filter(gender=gender)
@@ -93,13 +108,20 @@ def prescriberSearchPageView(request) :
     if opioid_level != 'Select' :
         data = data.filter(opioidlevel=opioid_level)
 
-    if is_licensed != '' :
+    if is_licensed :
         data = data.filter(isopioidprescriber=is_licensed)
+
+    result_count = data.count()
     
+    if (name_contains == '') and (gender == 'Select') and (state == '') and (credential == '') and (specialty == '') and (opioid_level == 'Select') and (not is_licensed) :
+        data = data[0:100]
+        result_count = data.count()
+        result_count = str(result_count) + '+'
 
     context = {
         "prescribers" : data,
         "states" : state_data,
+        "result_count" : result_count
     }
 
     return render(request, 'webapp/prescribers.html', context)

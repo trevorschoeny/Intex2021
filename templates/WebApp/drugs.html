@@ -13,6 +13,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Search -->
         <form name="form" method="get" action="{% url 'drugsearch'%}">
             <div class="container">
@@ -31,8 +32,10 @@
                 <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Search</button>
             </div>
         </form>
+
         <!-- Results -->
         <div class="container">
+            <h3>{{ result_count }} Results:</h3>
             <div class="row">
                     {% for drug in drugs %}
                     <div class="col-md-auto py-2">

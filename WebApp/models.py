@@ -280,6 +280,7 @@ class PdPrescriber(models.Model):
     zetia = models.IntegerField()
     ziprasidonehcl = models.IntegerField()
     zolpidemtartrate = models.IntegerField()
+    opioidprescribe = models.BooleanField()
 
     def __str__(self):
         return (self.lname)
