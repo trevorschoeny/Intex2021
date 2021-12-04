@@ -16,15 +16,13 @@
 
         <!-- Search -->
         <form class="container mx-1" name="form" method="get" action="{% url 'prescribersearch'%}">
-            <div class="row">
+            <div class="row my-3">
 
                 <!-- Name -->
                 <div class="col-8">
-                    <div class="input-group mb-3">
-                        <div class="form-floating form-floating-group flex-grow-1">
-                            <input class="form-control" id="name_contains" type="text" name="name_contains" placeholder="placeholder" value=""/>
-                            <label for="name_contains">Name:</label>
-                        </div>
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="name_contains" type="text" name="name_contains" placeholder="placeholder" value=""/>
+                        <label for="name_contains">Name:</label>
                     </div>
                 </div>
 
@@ -59,13 +57,10 @@
                 <!-- Credentials -->
                 <div class="col">
                     <div class="form-floating">
-                        <input class="form-control" list="credential_list" id="credential_select" name="credential_select" placeholder="Type to search...">
-                        <datalist id="credential_list">
-                            {% comment %} {% for credential in credentials %}
-                                <option value="{{ credential.name }}">{{ credential.name }}</option>
-                            {% endfor %} {% endcomment %}
-                        </datalist>
-                        <label for="exampleDataList" class="form-label">Credential:</label>
+                        <div class="form-floating form-floating-group flex-grow-1">
+                            <input class="form-control" id="credentials_contains" type="text" name="credentials_contains" placeholder="placeholder" value=""/>
+                            <label for="credentials_contains">Credentials:</label>
+                        </div>
                     </div>
                 </div>
                     
@@ -74,9 +69,9 @@
                     <div class="form-floating">
                         <input class="form-control" list="specialty_list" id="specialty_select" name="specialty_select" placeholder="Type to search...">
                         <datalist id="specialty_list">
-                            {% comment %} {% for specialty in specialties %}
-                                <option value="{{ specialty.name }}">{{ specialty.name }}</option>
-                            {% endfor %} {% endcomment %}
+                            {% for specialty in specialties %}
+                                <option value="{{ specialty.title }}">{{ specialty.title }}</option>
+                            {% endfor %}
                         </datalist>
                         <label for="exampleDataList" class="form-label">Specialty:</label>
                     </div>
@@ -122,7 +117,7 @@
                     {% for prescriber in prescribers %}
                     <div class="col-md-auto py-2">
                         {% if prescriber.opioidprescribe %}
-                                <a class="btn btn-outline-primary" href="{% url 'index' %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
+                                <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
                         {% else %}
                                 <a class="btn btn-outline-secondary" href="{% url 'index' %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>                            
                         {% endif %}

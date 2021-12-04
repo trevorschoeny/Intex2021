@@ -10,17 +10,21 @@
     <div class="text-center mb-5">
         {% if drug.isopioid == 'True' %}
         <h1 class="fw-bolder"><div class="text-primary">{{ drug.drugname|format_me:"." }}</div></h1>
-            <p class="lead fw-normal text-muted mb-0">Opioid</p>
+            <p class="lead fw-normal text-muted mb-0">Opioid Prescription Drug</p>
         {% else %}
         <h1 class="fw-bolder">{{ drug.drugname|format_me:"." }}</h1>
-            <p class="lead fw-normal text-muted mb-0">Not Opioid</p>
+            <p class="lead fw-normal text-muted mb-0">Non-Opioid Prescription Drug</p>
         {% endif %}
     </div>
 
     <!-- Top Providers -->
     <div class="container">
-        <h3 class="mb-0">Top Providers</h3>
-        <p class="fw-normal text-muted mb-3">and total {{ drug.drugname|format_me:"." }} prescribed</p>
+        {% if prescribers %}
+        <h3 class="mb-0">Top Prescribers</h3>
+        <p class="fw-normal text-muted mb-3">and total patients prescribed</p>
+        {% else %}
+        <h3 class="mb-0">No prescribers currently prescribe this drug.</h3>
+        {% endif %}
     </div>
     <div class="container px-4 mt-2 mb-5">
         <div class="row">

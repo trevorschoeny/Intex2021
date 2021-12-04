@@ -122,23 +122,14 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
-class PdStatedata(models.Model):
-    state = models.CharField(max_length=14)
-    stateabbrev = models.CharField(primary_key=True, max_length=2)
-    population = models.IntegerField()
-    deaths = models.IntegerField()
-
-    def __str__(self):
-        return (self.state)
-
-    class Meta:
-        db_table = 'pd_statedata'
-
-
 class PdCredential(models.Model):
     title = models.CharField(primary_key=True, max_length=20)
 
+    def __str__(self):
+        return (self.title)
+
     class Meta:
+        managed = False
         db_table = 'pd_credential'
 
 
@@ -151,6 +142,7 @@ class PdDrugs(models.Model):
         return (self.drugname)
 
     class Meta:
+        managed = False
         db_table = 'pd_drugs'
 
 
@@ -159,15 +151,13 @@ class PdPrescriber(models.Model):
     fname = models.CharField(max_length=11)
     lname = models.CharField(max_length=11)
     gender = models.CharField(max_length=1)
-    stateid = models.ForeignKey(PdStatedata, models.DO_NOTHING, default='AL')
+    state = models.CharField(max_length=2)
     credentials = models.CharField(max_length=30, blank=True, null=True)
     isopioidprescriber = models.CharField(max_length=5)
     totalprescriptions = models.IntegerField(blank=True, null=True)
 
-    specialties = models.ManyToManyField('PdSpecialty')
-
     def __str__(self):
-        return (self.fname + self.lname)
+        return (self.lname)
 
     class Meta:
         db_table = 'pd_prescriber'
@@ -180,11 +170,26 @@ class PdSpecialty(models.Model):
         return (self.title)
 
     class Meta:
+        managed = False
         db_table = 'pd_specialty'
 
 
+class PdStatedata(models.Model):
+    state = models.CharField(max_length=14)
+    stateabbrev = models.CharField(primary_key=True, max_length=2)
+    population = models.IntegerField()
+    deaths = models.IntegerField()
+
+    def __str__(self):
+        return (self.state)
+
+    class Meta:
+        managed = False
+        db_table = 'pd_statedata'
+
+
 class PdTriplenew(models.Model):
-    prescriberid = models.OneToOneField(PdPrescriber, models.DO_NOTHING, db_column='prescriberid', primary_key=True, default=1003008475)
+    prescriberid = models.OneToOneField(PdPrescriber, models.DO_NOTHING, db_column='prescriberid', primary_key=True)
     qty = models.IntegerField()
     drugid = models.ForeignKey(PdDrugs, models.DO_NOTHING, db_column='drugid', default=2)
 
@@ -206,9 +211,18 @@ class PrescriberCredential(models.Model):
 
 class PrescriberSpecialty(models.Model):
     id = models.IntegerField(primary_key=True)
-    prescriber = models.ForeignKey(PdPrescriber, models.DO_NOTHING, default=1003008475)
-    specialty_title = models.ForeignKey(PdSpecialty, models.DO_NOTHING, db_column='specialty_title', default='Clinic')
+    prescriber_id = models.ForeignKey(PdPrescriber, models.DO_NOTHING)
+    specialty_title = models.ForeignKey(PdSpecialty, models.DO_NOTHING, db_column='specialty_title')
 
     class Meta:
         managed = False
         db_table = 'prescriber_specialty'
+
+
+class PrescriberSpecialtyLink(models.Model):
+    id = models.IntegerField(primary_key=True)
+    prescriber_id = models.ForeignKey(PdPrescriber, models.DO_NOTHING, default=1003008475)
+    specialty_title = models.ForeignKey(PdSpecialty, models.DO_NOTHING, db_column='specialty_title', default='Allergy')
+
+    class Meta:
+        db_table = 'prescriber_specialty_link'

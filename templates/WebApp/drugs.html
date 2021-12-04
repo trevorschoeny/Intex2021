@@ -39,7 +39,7 @@
             <div class="row">
                     {% for drug in drugs %}
                     <div class="col-md-auto py-2">
-                        {% if drug.isopioid == 'True' %}
+                        {% if drug.isopioid == 'TRUE' %}
                                 <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|format_me:"." }}</a>
                         {% else %}
                                 <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|format_me:"." }}</a>                            
