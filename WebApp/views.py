@@ -1,6 +1,8 @@
-from django.db.models import Q 
+from django.db.models import Q
+from django.db.models.aggregates import Sum 
 from django.shortcuts import render
-from WebApp.models import PdDrugs, PdPrescriber, PdSpecialty, PdStatedata
+from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdSpecialty, PdStatedata
+import re
 
 # Create your views here.
 
@@ -42,7 +44,7 @@ def drugSearchPageView(request) :
 
 def drugDetailPageView(request, drug_id) :
     drug_data = PdDrugs.objects.get(drugid = drug_id)
-    p_query = "select * from pd_triplenew t inner join pd_prescriber p on t.prescriberid = p.npi inner join pd_drugs d on t.drugname = d.drugname where drugid = "
+    p_query = "select * from pd_prescriber_drugs pd inner join pd_prescriber p on pd.pdprescriber_id = p.npi inner join pd_drugs d on pd.pddrugs_id = d.drugid where d.drugid = "
     p_query += drug_id
     p_query += "order by qty desc limit 10;"
     prescriber_data = PdPrescriber.objects.raw(p_query)
@@ -86,10 +88,6 @@ def prescriberSearchPageView(request) :
     opioid_level = request.GET.get('opioid_level_select')
     is_licensed = request.GET.get('licensed_check')
 
-    for state_i in state_data :
-        if state_i.state == state :
-            state = state_i.stateabbrev
-
     if name_contains != '' :
         data = data.filter( Q(fname__icontains=name_contains) | Q(lname__icontains=name_contains))
     
@@ -97,14 +95,13 @@ def prescriberSearchPageView(request) :
         data = data.filter(gender=gender)
 
     if state != '' :
-        data = data.filter(state__icontains=state)
+        data = data.filter(state__state__icontains=state)
 
     if credentials != '' :
         data = data.filter(credentials__icontains=credentials)
 
     if specialty != '' :
-        data_s = data
-        data_s = data_s.raw("select * from pd_specialty")
+        data = data.filter(specialties__title__icontains=specialty)
 
     if opioid_level != 'Select' :
         data = data.filter(opioidlevel=opioid_level)
@@ -133,12 +130,18 @@ def prescriberDetailPageView(request, prescriber_id) :
     prescriber_data = PdPrescriber.objects.get(npi = prescriber_id)
     drug_data = PdDrugs.objects.all()
 
+    total_prescriptions = PdPrescriberDrugs.objects.filter(pdprescriber_id=prescriber_id).aggregate(total=Sum('qty'))['total']
+    # total_opioids = PdPrescriberDrugs.objects.filter(pdprescriber_id=prescriber_id, pddrugs_id__isopioid=True).aggregate(total=Sum('qty'))['total']
+
+    # test_opioids = PdPrescriberDrugs.objects.filter(isopioid=True)
+
+    # print(test_opioids)
+
     context = {
         "drugs" : drug_data,
-        "prescriber" : prescriber_data
+        "prescriber" : prescriber_data,
+        "total_prescriptions" : total_prescriptions
     }
-
-    print(prescriber_data.fname)
 
     return render(request, 'webapp/prescriberdetail.html', context)
 

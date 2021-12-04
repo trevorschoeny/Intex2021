@@ -7,6 +7,7 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
+
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
@@ -121,23 +122,11 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
-class PdStatedata(models.Model):
-    state = models.CharField(max_length=14)
-    stateabbrev = models.CharField(primary_key=True, max_length=2)
-    population = models.IntegerField()
-    deaths = models.IntegerField()
-
-    def __str__(self):
-        return (self.state)
-
-    class Meta:
-        db_table = 'pd_statedata'
-
-
 class PdCredential(models.Model):
     title = models.CharField(primary_key=True, max_length=20)
 
     class Meta:
+        managed = False
         db_table = 'pd_credential'
 
 
@@ -146,10 +135,8 @@ class PdDrugs(models.Model):
     drugname = models.CharField(max_length=30)
     isopioid = models.CharField(max_length=5)
 
-    def __str__(self):
-        return (self.drugname)
-
     class Meta:
+        managed = False
         db_table = 'pd_drugs'
 
 
@@ -158,18 +145,13 @@ class PdPrescriber(models.Model):
     fname = models.CharField(max_length=11)
     lname = models.CharField(max_length=11)
     gender = models.CharField(max_length=1)
-    state = models.ForeignKey(PdStatedata, models.DO_NOTHING, db_column='state')
+    state = models.ForeignKey('PdStatedata', models.DO_NOTHING, db_column='state')
     credentials = models.CharField(max_length=30, blank=True, null=True)
     isopioidprescriber = models.CharField(max_length=5)
     totalprescriptions = models.IntegerField(blank=True, null=True)
 
-    specialties = models.ManyToManyField('PdSpecialty')
-    drugs = models.ManyToManyField('PdDrugs', through='PdPrescriberDrugs')
-
-    def __str__(self):
-        return (self.fname + ' ' + self.lname)
-
     class Meta:
+        managed = False
         db_table = 'pd_prescriber'
 
 
@@ -177,30 +159,58 @@ class PdPrescriberDrugs(models.Model):
     id = models.BigAutoField(primary_key=True)
     pdprescriber = models.ForeignKey(PdPrescriber, models.DO_NOTHING)
     pddrugs = models.ForeignKey(PdDrugs, models.DO_NOTHING)
-    qty = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return (str(self.pdprescriber) + ' - ' + str(self.pddrugs) + ' - ' + str(self.qty))
+    qty = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'pd_prescriber_drugs'
         unique_together = (('pdprescriber', 'pddrugs'),)
+
+
+class PdPrescriberSpecialties(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    pdprescriber = models.ForeignKey(PdPrescriber, models.DO_NOTHING)
+    pdspecialty = models.ForeignKey('PdSpecialty', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'pd_prescriber_specialties'
+        unique_together = (('pdprescriber', 'pdspecialty'),)
 
 
 class PdSpecialty(models.Model):
     title = models.CharField(primary_key=True, max_length=62)
 
-    def __str__(self):
-        return (self.title)
-
     class Meta:
+        managed = False
         db_table = 'pd_specialty'
 
 
-class PdTriplenew(models.Model):
-    prescriberid = models.OneToOneField(PdPrescriber, models.DO_NOTHING, db_column='prescriberid', primary_key=True, default=1003008475)
+class PdStatedata(models.Model):
+    state = models.CharField(max_length=25, blank=True, null=True)
+    stateabbrev = models.CharField(primary_key=True, max_length=2)
+    population = models.IntegerField(blank=True, null=True)
+    deaths = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'pd_statedata'
+
+
+class PdTriple(models.Model):
+    prescriberid = models.OneToOneField(PdPrescriber, models.DO_NOTHING, db_column='prescriberid', primary_key=True)
     qty = models.IntegerField()
-    drugid = models.ForeignKey(PdDrugs, models.DO_NOTHING, db_column='drugid', default=2)
+    drugid = models.ForeignKey(PdDrugs, models.DO_NOTHING, db_column='drugid')
+
+    class Meta:
+        managed = False
+        db_table = 'pd_triple'
+
+
+class PdTriplenew(models.Model):
+    prescriberid = models.OneToOneField(PdPrescriber, models.DO_NOTHING, db_column='prescriberid', primary_key=True)
+    qty = models.IntegerField()
+    drugid = models.ForeignKey(PdDrugs, models.DO_NOTHING, db_column='drugid')
 
     class Meta:
         managed = False
@@ -220,8 +230,8 @@ class PrescriberCredential(models.Model):
 
 class PrescriberSpecialty(models.Model):
     id = models.IntegerField(primary_key=True)
-    prescriber = models.ForeignKey(PdPrescriber, models.DO_NOTHING, default=1003008475)
-    specialty_title = models.ForeignKey(PdSpecialty, models.DO_NOTHING, db_column='specialty_title', default='Clinic')
+    prescriber = models.ForeignKey(PdPrescriber, models.DO_NOTHING)
+    specialty_title = models.ForeignKey(PdSpecialty, models.DO_NOTHING, db_column='specialty_title')
 
     class Meta:
         managed = False

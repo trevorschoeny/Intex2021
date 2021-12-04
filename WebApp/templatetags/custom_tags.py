@@ -8,3 +8,11 @@ def format_me(value, char):
     result = result.replace(char, " ")
 
     return result
+
+@register.filter(name='times') 
+def times(number):
+    return range(number)
+
+@register.filter(name='returnindex')
+def returnindex(indexable, i):
+    return indexable[i]
