@@ -77,6 +77,21 @@ def prescribersPageView(request) :
 def prescriberSearchPageView(request) :
 
     data = PdPrescriber.objects.all()
+    data_raw = PdPrescriber.objects.raw('''select *, (select sum(pd.qty)
+                                                from pd_prescriber p
+                                                    inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id
+                                                    inner join pd_drugs d on d.drugid = pd.pddrugs_id
+                                                where d.isopioid = 'TRUE'
+                                                    and pd.pdprescriber_id = p1.npi) / (select sum(pd.qty)
+                                                from pd_prescriber p
+                                                    inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id
+                                                    inner join pd_drugs d on d.drugid = pd.pddrugs_id
+                                                    and pd.pdprescriber_id = p1.npi) as opioidpercent, (select sum(pd.qty)
+                                                from pd_prescriber p
+                                                    inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id
+                                                    inner join pd_drugs d on d.drugid = pd.pddrugs_id
+                                                    and pd.pdprescriber_id = p1.npi) as dynamictotalprescriptions
+                                            from pd_prescriber p1''')
     specialty_data = PdSpecialty.objects.all()
     state_data = PdStatedata.objects.all()
 
@@ -90,6 +105,7 @@ def prescriberSearchPageView(request) :
 
     if name_contains != '' :
         data = data.filter( Q(fname__icontains=name_contains) | Q(lname__icontains=name_contains))
+        data_raw = data_raw.raw("select * from data_raw")
     
     if gender != 'Select' :
         data = data.filter(gender=gender)
@@ -104,30 +120,7 @@ def prescriberSearchPageView(request) :
         data = data.filter(specialties__title__icontains=specialty)
 
     if opioid_level != 'Select' :
-
-        ## FIX ME
-
-        list_to_include = []
-
-        for prescriber in data :
-            query = "select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = "
-            query += str(prescriber.npi)
-            prescriptions_raw = PdPrescriberDrugs.objects.raw(query)
-            
-            total_prescriptions = 0
-            total_opioids = 0
-
-            for obj in prescriptions_raw:
-                total_prescriptions += obj.qty
-
-            for obj in prescriptions_raw:
-                if obj.isopioid == 'TRUE' :
-                    total_opioids += obj.qty
-
-            opioid_percent = round((total_opioids / total_prescriptions) * 100)
-
-            if opioid_level == 'None' and opioid_percent == 0:
-                list_to_include.append(prescriber.npi)
+        pass
 
     if is_licensed :
         data = data.filter(isopioidprescriber=is_licensed)
