@@ -8,23 +8,29 @@
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-6">
                 <div class="text-center mb-4">
-                    <a class="text-decoration-none link-dark" href="{% url 'prescribers' %}"><h1 class="fw-bolder">Prescribers</h1></a>
-
-                    <!-- Add Prescriber -->
-                    <a class="btn btn-primary btn-lg px-4 my-3 me-sm-3" href="{% url 'addprescriber' %}">Add New Prescriber</a>
+                    <a class="text-decoration-none link-dark" href="{% url 'prescribers' %}"><h1 class="fw-bolder">Add a new prescriber</h1></a>
                 </div>
             </div>
         </div>
 
-        <!-- Search -->
-        <form class="container mx-1" name="form" method="get" action="{% url 'prescribersearch'%}">
+        <!-- Form -->
+        <form class="container mx-1" name="form" method="post" action="{% url 'prescribersearch'%}">
+            {% csrf_token %}
             <div class="row my-3">
 
-                <!-- Name -->
-                <div class="col-8">
+                <!-- First Name -->
+                <div class="col-4">
                     <div class="form-floating form-floating-group flex-grow-1">
-                        <input class="form-control" id="name_contains" type="text" name="name_contains" placeholder="placeholder" value=""/>
-                        <label for="name_contains">Name:</label>
+                        <input class="form-control" id="fname" type="text" name="fname" placeholder="placeholder" value=""/>
+                        <label for="fname">First Name:</label>
+                    </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-4">
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="lname" type="text" name="lname" placeholder="placeholder" value=""/>
+                        <label for="lname">Last Name:</label>
                     </div>
                 </div>
 
@@ -60,8 +66,8 @@
                 <div class="col">
                     <div class="form-floating">
                         <div class="form-floating form-floating-group flex-grow-1">
-                            <input class="form-control" id="credentials_contains" type="text" name="credentials_contains" placeholder="placeholder" value=""/>
-                            <label for="credentials_contains">Credentials:</label>
+                            <input class="form-control" id="credentials" type="text" name="credentials" placeholder="placeholder" value=""/>
+                            <label for="credentials">Credentials:</label>
                         </div>
                     </div>
                 </div>
@@ -79,22 +85,6 @@
                     </div>
                 </div>
                     
-                <!-- Opioid Level -->
-                <div class="col">
-                    <div class="form-floating">
-                        <select class="form-select" id="opioid_level_select" name="opioid_level_select" aria-label="Opioid level select">
-                        <option selected>Select</option>
-                        <option value="1">None</option>
-                        <option value="2">Low</option>
-                        <option value="3">Medium</option>
-                        <option value="3">High</option>
-                        </select>
-                        <label for="opioid_level_select">Opioid Prescription Level</label>
-                    </div>
-                </div>
-            </div>
-            <div class="row py-3">
-                    
                 <!-- Licenced for Opioid -->
                 <div class="col">
                     <div class="form-floating">
@@ -106,32 +96,11 @@
                 </div>
             </div>
 
-            <!-- Search Button -->
+            <!-- Submit Button -->
             <div class="mb-5">
-                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Search</button>
+                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Add Prescriber</button>
             </div>
         </form>
-
-        <!-- Results -->
-        <div class="container">
-            <h3>{{ result_count }} Results:</h3>
-            <p class="lead fw-normal text-muted mb-0">Prescribers that have prescribed opioids are shown in blue.</p>
-            <div class="row">
-                    {% for prescriber in prescribers %}
-                    <div class="col-md-auto py-2">
-                        {% if prescriber.opioidprescribe %}
-                                <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
-                        {% else %}
-                                <a class="btn btn-outline-secondary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>                            
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <div class="col-md-auto pt-3">
-                        <p class="lead fw-normal text-muted mb-0">. . . search to find more.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 {% endblock %}

@@ -11,11 +11,19 @@
         <h1 class="fw-bolder">{{ prescriber.fname }} {{ prescriber.lname }}</h1>
         <p class="lead fw-normal text-muted mb-0">Provider</p>
     </div>
-    <div class="card mx-5" >
+    <div class="mx-5" ><div class="card mx-3" >
         <ul class="list-group list-group-flush">
 
             <!-- Gender -->
-            <li class="list-group-item"><p class="text-muted" style="display:inline">Gender: </p>{{ prescriber.gender }}</li>
+            <li class="list-group-item"><p class="text-muted" style="display:inline">Gender: </p>
+                {% if prescriber.gender == 'F' %}
+                    Female
+                {% elif prescriber.gender == 'M' %}
+                    Male
+                {% else %}
+                    Other
+                {% endif %}
+            </li>
 
             <!-- State -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">State: </p>{{ prescriber.state }}</li>
@@ -58,45 +66,14 @@
                     High ({{ opioid_percent }}%)
                 {% endif %}
             </li>
-
-            <!-- Drugs -->
-            <li class="list-group-item"><p class="text-muted" style="display:inline">
-            {% if prescriber.drugs.all.count > 1 %}
-                Drugs Prescribed (Opioids shown in blue): 
-            {% else %}
-                Drug Prescribed (Opioids shown in blue): 
-            {% endif %}
-            </p>
-            <div class='row'>
-            {% for drug in prescriptions %}
-                <div class='col-3'>
-                {% if drug.isopioid == 'TRUE' %}
-                    <div class="text-primary">
-                    {% if not forloop.last %}
-                        {{ drug.drugname|title }} ({{ drug.qty }}),
-                    {% else %}
-                        {{ drug.drugname|title }} ({{ drug.qty }})
-                    {% endif %}
-                    </div class>
-                {% else %}
-                    {% if not forloop.last %}
-                        {{ drug.drugname|title }} ({{ drug.qty }}),
-                    {% else %}
-                        {{ drug.drugname|title }} ({{ drug.qty }})
-                    {% endif %}
-                {% endif %}
-                </div>
-            {% endfor %}
-            </div>
-            </li>
         </ul>
-    </div>
+    </div></div>
 
     <!-- Drug List -->
-    <div class="container py-4">
+    <div class="container pt-4">
         {% if prescriptions %}
         <h3 class="mb-0">Drugs Prescribed</h3>
-        <p class="fw-normal text-muted">and quantity prescribed of each drug (opioids shown in blue)</p>
+        <p class="fw-normal text-muted">and quantity prescribed (opioids shown in blue)</p>
         {% else %}
         <h3 class="mb-0">This prescriber currently has not prescribed any drugs.</h3>
         {% endif %}
@@ -105,11 +82,22 @@
         <div class="row">
                 {% for drug in prescriptions %}
                 <div class="col-md-auto py-2">
-                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
-                </div>
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug.pddrugs_id %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.pddrugs_id %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                    {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         </div>
     </div>
+
+    <!-- Update and Delete Prescriber -->
+    <div class="container">
+        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'index' %}">Update Prescriber</a>
+        <a class="btn btn-danger btn-lg px-4 me-sm-3" href="{% url 'index' %}">Delete Prescriber</a>
+    </div>
+
 </section>
 {% endblock %}
