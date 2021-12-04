@@ -174,73 +174,79 @@ def prescriberDetailPageView(request, prescriber_id) :
 
 def addPrescriberPageView(request):
     prescribers = PdPrescriber.objects.all()
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+
     context = {
         "prescribers": prescribers,
+        "states" : state_data,
+        "specialties" : specialty_data
     }
 
     return render(request, 'webapp/addprescriber.html', context)
 
 def storePrescriberPageView(request):
-    states = PdStatedata.objects.all()
-    specialties = PdSpecialty.objects.all()
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
 
     #Check to see if the form method is a get or post
     if request.method == 'POST':
 
-        #Create a new employee object from the model (like a new record)
+        #Create a new prescriber object from the model (like a new record)
         new_prescriber = PdPrescriber()
         
         #Store the data from the form to the new object's attributes (like columns)
         new_prescriber.fname = request.POST.get('fname')                   
         new_prescriber.lname = request.POST.get('lname')  
-        gender = request.POST.get('gender_select')            
+        gender = request.POST.get('gender_select')   
+        print (gender)         
         if gender == 'Female' :
             new_prescriber.gender = 'F'
         elif gender == 'Male' :
             new_prescriber.gender = 'M'
         else :
-            new_prescriber.gender = 'O'                 
+            new_prescriber.gender = 'O'
+            
         state_input = request.POST.get('state') 
-        for state in states :
+        print(state_input)
+        for state in state_data :
             if state.state == state_input :
                 new_prescriber.state = state.stateabbrev
         new_prescriber.credentials = request.POST.get('credentials')
-            
+        
         new_prescriber.save()
         specialty_input = request.POST.get('specialty_select')
-        for specialty in specialties :
+        for specialty in specialty_data :
             if specialty.title == specialty_input :
                 new_prescriber.specialties.add(specialty)
-        
-        #Get all of the State objects (record or records) for the current employee state
-        new_state = State.objects.get(state_abbrev = request.POST.get('emp_state'))
-        
-        #Create a new Contact Information object (record)
-        new_contact = Contact_Information()
-        
-        #Store the data from the form to the contact phone attribute (column) 
-        new_contact.contact_phone = request.POST.get('contact_info')
-        
-        #Save the contact information record which will generate the autoincremented id
-        new_contact.save()
-        
-        #Store the newly created contact information id (object or record reference) to the employee record
-        new_prescriber.contact_information = new_contact
-        
-        #Store the State reference found to the employee state
-        new_prescriber.emp_state = new_state
-        
-        #Save the employee record
+
+        licensed_check = request.POST.get('licensed_check')
+        if licensed_check :
+            new_prescriber.isopioidprescriber = 'TRUE'
+        else :
+            new_prescriber.isopioidprescriber = 'FALSE'
+        print(licensed_check)
+
+        new_prescriber.npi = request.POST.get('npi')
+        print(new_prescriber)
+
         new_prescriber.save()
-        
-    #Make a list of all of the employee records and store it to the variable
-    data = Employee.objects.all()
-    
-    #Assign the list of employee records to the dictionary key "our_emps"
+
+    data = PdPrescriber.objects.all()[0:100]
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+
+    result_count = data.count()
+    result_count = str(result_count) + '+'
+
     context = {
-        "our_emps" : data
+        "prescribers" : data,
+        "states" : state_data,
+        "result_count" : result_count,
+        "specialties" : specialty_data
     }
-    return render(request, 'homepages/displayEmps.html', context)  
+
+    return render(request, 'webapp/prescriber.html', context)  
 
 def aboutPageView(request) :
     return render(request, 'webapp/about.html')
