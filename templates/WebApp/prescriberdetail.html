@@ -11,7 +11,7 @@
         <h1 class="fw-bolder">{{ prescriber.fname }} {{ prescriber.lname }}</h1>
         <p class="lead fw-normal text-muted mb-0">Provider</p>
     </div>
-    <div class="card" >
+    <div class="card mx-5" >
         <ul class="list-group list-group-flush">
 
             <!-- Gender -->
@@ -21,7 +21,7 @@
             <li class="list-group-item"><p class="text-muted" style="display:inline">State: </p>{{ prescriber.state }}</li>
 
             <!-- Credentials -->
-            <li class="list-group-item"><p class="text-muted" style="display:inline">Credentials: </p>{{ prescriber.credential }}</li>
+            <li class="list-group-item"><p class="text-muted" style="display:inline">Credentials: </p>{{ prescriber.credentials }}</li>
 
             <!-- Specialists -->
             {% if prescriber.specialties.all.count > 1 %}
@@ -39,31 +39,77 @@
             </li>
 
             <!-- Licensed -->
-            <li class="list-group-item"><p class="text-muted" style="display:inline">Licensed to prescribe opioid: </p>{{ prescriber.isopioidprescriber }}</li>
-
-            <!-- Prescribed Opioids -->
-            <li class="list-group-item"><p class="text-muted" style="display:inline">Has presribed opioid?: </p>{{ prescriber.opioidprescribe }}</li>
+            <li class="list-group-item"><p class="text-muted" style="display:inline">Licensed to prescribe opioid: </p>
+                {% if prescriber.isopioidprescriber %}Yes{% else %}No{%endif%}
+            </li>
 
             <!-- Total Prescriptions -->
-            <li class="list-group-item"><p class="text-muted" style="display:inline">Total prescriptions: </p>{{ prescriber.totalprescriptions }}</li>
             <li class="list-group-item"><p class="text-muted" style="display:inline">Total prescriptions: </p>{{ total_prescriptions }}</li>
 
-            <!-- Drugs -->
-            {% if prescriber.drugs.all.count > 1 %}
-                <li class="list-group-item"><p class="text-muted" style="display:inline">Drugs Prescribed: </p>
-            {% else %}
-                <li class="list-group-item"><p class="text-muted" style="display:inline">Drug Prescribed: </p>
-            {% endif %}
+            <!-- Opioid Prescription Level -->
+            <li class="list-group-item"><p class="text-muted" style="display:inline">Percent of prescriptions that are opioids: </p>
+                {% if opioid_percent == 0 %}
+                    No Opioids Prescribed
+                {% elif opioid_percent < 25 %}
+                    Low ({{ opioid_percent }}%)
+                {% elif opioid_percent < 75 %}
+                    Medium ({{ opioid_percent }}%)
+                {% else %}
+                    High ({{ opioid_percent }}%)
+                {% endif %}
+            </li>
 
-                {% for drug in prescriber.pdprescriberdrugs_set.all %}
-                    {% if forloop.counter < prescriber.drugs.all.count %}
-                        {{ prescriber.drugs.all|returnindex:forloop.counter0|title }} ({{ drug.qty }}),
+            <!-- Drugs -->
+            <li class="list-group-item"><p class="text-muted" style="display:inline">
+            {% if prescriber.drugs.all.count > 1 %}
+                Drugs Prescribed (Opioids shown in blue): 
+            {% else %}
+                Drug Prescribed (Opioids shown in blue): 
+            {% endif %}
+            </p>
+            <div class='row'>
+            {% for drug in prescriptions %}
+                <div class='col-3'>
+                {% if drug.isopioid == 'TRUE' %}
+                    <div class="text-primary">
+                    {% if not forloop.last %}
+                        {{ drug.drugname|title }} ({{ drug.qty }}),
                     {% else %}
-                        {{ prescriber.drugs.all|returnindex:forloop.counter0|title }} ({{ drug.qty }})
+                        {{ drug.drugname|title }} ({{ drug.qty }})
                     {% endif %}
-                {% endfor %}
+                    </div class>
+                {% else %}
+                    {% if not forloop.last %}
+                        {{ drug.drugname|title }} ({{ drug.qty }}),
+                    {% else %}
+                        {{ drug.drugname|title }} ({{ drug.qty }})
+                    {% endif %}
+                {% endif %}
+                </div>
+            {% endfor %}
+            </div>
             </li>
         </ul>
+    </div>
+
+    <!-- Drug List -->
+    <div class="container py-4">
+        {% if prescriptions %}
+        <h3 class="mb-0">Drugs Prescribed</h3>
+        <p class="fw-normal text-muted">and quantity prescribed of each drug (opioids shown in blue)</p>
+        {% else %}
+        <h3 class="mb-0">This prescriber currently has not prescribed any drugs.</h3>
+        {% endif %}
+    </div>
+    <div class="container px-4 mt-2 mb-5">
+        <div class="row">
+                {% for drug in prescriptions %}
+                <div class="col-md-auto py-2">
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.drugid %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </section>
 {% endblock %}
