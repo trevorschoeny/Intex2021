@@ -69,6 +69,26 @@
         </ul>
     </div></div>
 
+    <!-- Recommended Drug List -->
+    <div class="container pt-4">
+        <h3 class="mb-0">Recommended Prescription Drugs</h3>
+        <p class="fw-normal text-muted">(opioids shown in blue)</p>
+    </div>
+    <div class="container px-4 mt-2 mb-5">
+        <div class="row">
+                {% for drug in 3|times %}
+                <div class="col-md-auto py-2">
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugs' %}">Drug</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugs' %}">Drug</a>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <!-- Drug List -->
     <div class="container pt-4">
         {% if prescriptions %}
