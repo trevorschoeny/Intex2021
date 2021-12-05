@@ -105,7 +105,7 @@ def prescriberSearchPageView(request) :
 
     if name_contains != '' :
         data = data.filter( Q(fname__icontains=name_contains) | Q(lname__icontains=name_contains))
-        data_raw = data_raw.raw("select * from data_raw")
+        # data_raw = data_raw.raw("select * from data_raw")
     
     if gender != 'Select' :
         data = data.filter(gender=gender)
@@ -196,41 +196,36 @@ def storePrescriberPageView(request):
         new_prescriber = PdPrescriber()
         
         #Store the data from the form to the new object's attributes (like columns)
+        new_prescriber.npi = request.POST.get('npi')
         new_prescriber.fname = request.POST.get('fname')                   
-        new_prescriber.lname = request.POST.get('lname')  
-        gender = request.POST.get('gender_select')   
-        print (gender)         
-        if gender == 'Female' :
-            new_prescriber.gender = 'F'
-        elif gender == 'Male' :
-            new_prescriber.gender = 'M'
-        else :
-            new_prescriber.gender = 'O'
-            
-        state_input = request.POST.get('state') 
-        print(state_input)
-        for state in state_data :
-            if state.state == state_input :
-                new_prescriber.state = state.stateabbrev
+        new_prescriber.lname = request.POST.get('lname')
+        new_prescriber.gender = request.POST.get('gender_select')
         new_prescriber.credentials = request.POST.get('credentials')
         
-        new_prescriber.save()
-        specialty_input = request.POST.get('specialty_select')
-        for specialty in specialty_data :
-            if specialty.title == specialty_input :
-                new_prescriber.specialties.add(specialty)
+        state_input = request.POST.get('state_select') 
+        for state in state_data :
+            if state.state == state_input :
+                new_prescriber.state = state
 
         licensed_check = request.POST.get('licensed_check')
         if licensed_check :
             new_prescriber.isopioidprescriber = 'TRUE'
         else :
             new_prescriber.isopioidprescriber = 'FALSE'
-        print(licensed_check)
-
-        new_prescriber.npi = request.POST.get('npi')
-        print(new_prescriber)
+        
+        new_prescriber.save()
+        (specialty_input, created) = PdSpecialty.objects.get_or_create(title=request.POST.get('specialty_select'))
+        print(created)
+        new_prescriber.specialties.add(specialty_input)
+        # for specialty in specialty_data :
+        #     if specialty.title == specialty_input :
+        #         new_prescriber.specialties.add(specialty)
+        #         specialty.save()
 
         new_prescriber.save()
+
+        # print(specialty_input)
+        print(new_prescriber.specialties)
 
     data = PdPrescriber.objects.all()[0:100]
     state_data = PdStatedata.objects.all()
@@ -246,7 +241,7 @@ def storePrescriberPageView(request):
         "specialties" : specialty_data
     }
 
-    return render(request, 'webapp/prescriber.html', context)  
+    return render(request, 'webapp/prescribers.html', context)  
 
 def aboutPageView(request) :
     return render(request, 'webapp/about.html')
