@@ -1,0 +1,222 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+<!-- Page Content-->
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-6">
+                <div class="text-center mb-4">
+                    {% if isnew == False %}
+                    <p class="text-decoration-none link-dark"><h1 class="fw-bolder">Update Prescriber</h1></p>
+                    {% else %}
+                    <p class="text-decoration-none link-dark"><h1 class="fw-bolder">Add Specialties and Drugs</h1></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if isnew == False %}
+
+        <!-- Form -->
+        <form class="container mx-1" name="form" method="post" action="{% url 'updateandstoreprescriber' prescriber_id=prescriber.npi%}">
+            {% csrf_token %}
+            <div class="row my-3">
+
+                <!-- First Name -->
+                <div class="col-4">
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="fname" type="text" name="fname" placeholder="placeholder" value="{{ prescriber.fname }}"/>
+                        <label for="fname">First Name:</label>
+                    </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-4">
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="lname" type="text" name="lname" placeholder="placeholder" value="{{ prescriber.lname }}"/>
+                        <label for="lname">Last Name:</label>
+                    </div>
+                </div>
+
+                <!-- NPI -->
+                <div class="col-4">
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="npi" type="text" name="npi" placeholder="placeholder" value="{{ prescriber.npi }}"/>
+                        <label for="npi">National Provider Identifier:</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row align-items-center my-3">
+
+                <!-- Gender -->
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select" id="gender_select" name="gender_select" aria-label="Floating label select example">
+                        {% if prescriber.gender == 'F' %}
+                        <option value="F" selected>Female</option>
+                        <option value="M">Male</option>
+                        <option value="O">Other</option>
+                        {% elif prescriber.gender == 'M' %}
+                        <option value="F">Female</option>
+                        <option value="M" selected>Male</option>
+                        <option value="O">Other</option>
+                        {% else %}
+                        <option value="F">Female</option>
+                        <option value="M">Male</option>
+                        <option value="O" selected>Other</option>
+                        {% endif %}
+                        </select>
+                        <label for="gender_select">Gender</label>
+                    </div>
+                </div>
+                
+                <!-- State -->
+                <div class="col">
+                    <div class="form-floating">
+                        <input class="form-control" list="state_list" id="state_select" name="state_select" placeholder="Type to search..." value="{{ prescriber.state }}">
+                        <datalist id="state_list">
+                            {% for state in states %}
+                                <option value="{{ state.state }}">{{ state.state }}</option>
+                            {% endfor %}
+                        </datalist>
+                        <label for="state_select" class="form-label">State:</label>
+                    </div>
+                </div>
+                
+                <!-- Credentials -->
+                <div class="col">
+                    <div class="form-floating">
+                        <div class="form-floating form-floating-group flex-grow-1">
+                            <input class="form-control" id="credentials" type="text" name="credentials" placeholder="placeholder" value="{{ prescriber.credentials }}"/>
+                            <label for="credentials">Credentials:</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row align-items-center my-3">
+                    
+                <!-- Licensed for Opioid -->
+                <div class="col">
+                    <div class="form-floating">
+                        <div class="form-check">
+                            {% if prescriber.isopioidprescriber == 'TRUE' %}
+                            <input class="form-check-input" type="checkbox" value="TRUE" checked id="licensed_check" name="licensed_check">
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" value="TRUE" id="licensed_check" name="licensed_check">
+                            {% endif %}
+                            <label class="form-check-label" for="licensed_check">Licensed to prescribe opioids</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="my-4">
+                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Update Prescriber Details</button>
+            </div>
+        </form>
+
+        {% endif %}
+
+        <!-- Specialties -->
+        <div class="container pt-4">
+            <h3 class="mb-0">Specialties</h3>
+            {% if not prescriber.specialties.all %}
+            <p class="fw-normal text-muted">None</p>
+            {% endif %}
+        </div>
+        <div class="container px-4 mt-2 mb-5">
+            <div class="row">
+                {% for specialty in prescriber.specialties.all %}
+                <div class="col-md-auto py-2">
+                    <a class="btn btn-outline-secondary">{{ specialty.title }}</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <form class="container mx-1" name="form" method="post" action="{% url 'addprescriberspecialty' prescriber_id=prescriber.npi%}">
+            {% csrf_token %}
+            <div class="row my-3">
+
+                <!-- Add Specialty -->
+                <div class="col">
+                    <div class="form-floating">
+                        <input class="form-control" list="specialty_list" id="specialty_select" name="specialty_select" placeholder="Type to search...">
+                        <datalist id="specialty_list">
+                            {% for specialty in specialties %}
+                                <option value="{{ specialty.title }}">{{ specialty.title }}</option>
+                            {% endfor %}
+                        </datalist>
+                        <label for="exampleDataList" class="form-label">New Specialty:</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="my-4">
+                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Add New Specialty</button>
+            </div>
+
+        </form>
+
+        <!-- Drugs -->
+        <div class="container pt-4">
+            <h3 class="mb-0">Drugs</h3>
+            {% if not prescriber.specialties.all %}
+            <p class="fw-normal text-muted">None</p>
+            {% endif %}
+        </div>
+        <div class="container px-4 mt-2 mb-5">
+            <div class="row">
+                {% for drug in prescriptions %}
+                <div class="col-md-auto py-2">
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug.pddrugs_id %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.pddrugs_id %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <form class="container mx-1" name="form" method="post" action="{% url 'addprescriberdrug' prescriber_id=prescriber.npi%}">
+            {% csrf_token %}
+            <div class="row my-3">
+
+                <!-- Add Drug -->
+                <div class="col-8">
+                    <div class="form-floating">
+                        <input class="form-control" list="drug_list" id="drug_select" name="drug_select" placeholder="Type to search...">
+                        <datalist id="drug_list">
+                            {% for drug in drugs %}
+                                <option value="{{ drug.drugname|title }}">{{ drug.drugname|title }}</option>
+                            {% endfor %}
+                        </datalist>
+                        <label for="drug_select" class="form-label">New Drug:</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="quantity" type="number" name="quantity" placeholder="placeholder" value=""/>
+                        <label for="quantity">Quantity Prescribed:</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="my-4">
+                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Add New Drug</button>
+            </div>
+
+        </form>
+
+        <div class="container">
+            <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">Done</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

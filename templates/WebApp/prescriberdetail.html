@@ -54,6 +54,7 @@
             <!-- Total Prescriptions -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">Total prescriptions: </p>{{ total_prescriptions }}</li>
 
+            {% if opioid_percent != 'N/A' %}
             <!-- Opioid Prescription Level -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">Percent of prescriptions that are opioids: </p>
                 {% if opioid_percent == 0 %}
@@ -66,6 +67,7 @@
                     High ({{ opioid_percent }}%)
                 {% endif %}
             </li>
+            {% endif %}
         </ul>
     </div></div>
 
@@ -112,10 +114,11 @@
             </div>
         </div>
     </div>
+    
 
     <!-- Update and Delete Prescriber -->
     <div class="container">
-        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'index' %}">Update Prescriber</a>
+        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'updateprescriber' prescriber_id=prescriber.npi %}">Update Prescriber</a>
         <a class="btn btn-danger btn-lg px-4 me-sm-3" href="{% url 'index' %}">Delete Prescriber</a>
     </div>
 

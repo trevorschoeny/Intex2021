@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.db.models.aggregates import Sum 
 from django.shortcuts import render
-from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdSpecialty, PdStatedata
+from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdPrescriberSpecialties, PdSpecialty, PdStatedata
 import re
 
 import pip._vendor.requests
@@ -468,7 +468,10 @@ def prescriberDetailPageView(request, prescriber_id) :
         if obj.isopioid == 'TRUE' :
             total_opioids += obj.qty
 
-    opioid_percent = round((total_opioids / total_prescriptions) * 100)
+    if total_prescriptions > 0 :
+        opioid_percent = round((total_opioids / total_prescriptions) * 100)
+    else :
+        opioid_percent = 'N/A'
 
     context = {
         "drugs" : drug_data,
@@ -522,35 +525,157 @@ def storePrescriberPageView(request):
         else :
             new_prescriber.isopioidprescriber = 'FALSE'
         
-        new_prescriber.save()
-        (specialty_input, created) = PdSpecialty.objects.get_or_create(title=request.POST.get('specialty_select'))
-        print(created)
-        new_prescriber.specialties.add(specialty_input)
-        # for specialty in specialty_data :
-        #     if specialty.title == specialty_input :
-        #         new_prescriber.specialties.add(specialty)
-        #         specialty.save()
+        # new_prescriber.save()
+        # (specialty_input, created) = PdSpecialty.objects.get_or_create(title=request.POST.get('specialty_select'))
+        # print(specialty_input.title)
+        # new_prescriber.specialties.add(specialty_input)
 
         new_prescriber.save()
-
-        # print(specialty_input)
-        print(new_prescriber.specialties)
 
     data = PdPrescriber.objects.all()[0:100]
     state_data = PdStatedata.objects.all()
     specialty_data = PdSpecialty.objects.all()
-
-    result_count = data.count()
-    result_count = str(result_count) + '+'
+    prescriber_data = new_prescriber
+    prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + new_prescriber.npi)
 
     context = {
         "prescribers" : data,
         "states" : state_data,
-        "result_count" : result_count,
-        "specialties" : specialty_data
+        "specialties" : specialty_data,
+        "prescriber" : prescriber_data,
+        "prescriptions" : prescriptions_raw,
+        "isnew" : True
     }
 
-    return render(request, 'webapp/prescribers.html', context)  
+    return render(request, 'webapp/updateprescriber.html', context)  
+
+def updatePrescriberPageView(request, prescriber_id):
+    prescriber_data = PdPrescriber.objects.get(npi = prescriber_id)
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+    prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + prescriber_id)
+    drugs = PdDrugs.objects.all()
+
+    context = {
+        "states" : state_data,
+        "specialties" : specialty_data,
+        "prescriber" : prescriber_data,
+        "prescriptions" : prescriptions_raw,
+        "isnew" : False,
+        "drugs" : drugs
+    }
+
+    return render(request, 'webapp/updateprescriber.html', context)  
+
+def updateAndStorePrescriberPageView(request, prescriber_id):
+    prescriber = PdPrescriber.objects.get(npi = prescriber_id)
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+
+    #Check to see if the form method is a get or post
+    if request.method == 'POST':
+        
+        #Store the data from the form to the new object's attributes (like columns)
+        prescriber.npi = request.POST.get('npi')
+        prescriber.fname = request.POST.get('fname')                   
+        prescriber.lname = request.POST.get('lname')
+        prescriber.gender = request.POST.get('gender_select')
+        prescriber.credentials = request.POST.get('credentials')
+        
+        state_input = request.POST.get('state_select') 
+        for state in state_data :
+            if state.state == state_input :
+                prescriber.state = state
+
+        licensed_check = request.POST.get('licensed_check')
+        if licensed_check :
+            prescriber.isopioidprescriber = 'TRUE'
+        else :
+            prescriber.isopioidprescriber = 'FALSE'
+        
+        prescriber.save()
+
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+    prescriber_data = prescriber
+    prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + prescriber.npi)
+
+    context = {
+        "states" : state_data,
+        "specialties" : specialty_data,
+        "prescriber" : prescriber_data,
+        "prescriptions" : prescriptions_raw,
+        "isnew" : False
+    }
+
+    return render(request, 'webapp/updateprescriber.html', context)
+
+def addPrescriberSpecialtyPageView(request, prescriber_id) :
+
+    prescriber = PdPrescriber.objects.get(npi = prescriber_id)
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+
+    #Check to see if the form method is a get or post
+    if request.method == 'POST':
+        specialty = request.POST.get('specialty_select')
+        (specialty_input, created) = PdSpecialty.objects.get_or_create(title=specialty)
+        PdPrescriberSpecialties.objects.get_or_create(pdprescriber_id=prescriber_id, pdspecialty_id=specialty_input.title)
+
+        # PdPrescriberDrugs.objects.get_or_create(pdprescriber_id=prescriber_id, pddrugs_id=drug_obj.drugid, qty=quantity)
+
+        # print(specialty_input.title)
+        # prescriber.specialties.add(specialty_input)
+        # # for specialty in prescriber.specialties :
+        # #     print(specialty)
+
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+    prescriber_data = prescriber
+    prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + str(prescriber.npi))
+
+
+    context = {
+        "states" : state_data,
+        "specialties" : specialty_data,
+        "prescriber" : prescriber_data,
+        "prescriptions" : prescriptions_raw,
+        "isnew" : False
+    }
+
+    return render(request, 'webapp/updateprescriber.html', context)
+
+def addPrescriberDrugPageView(request, prescriber_id) :
+
+    prescriber = PdPrescriber.objects.get(npi = prescriber_id)
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+    drug = request.POST.get('drug_select')
+    drug = drug.upper()
+    drug_obj = PdDrugs.objects.get(drugname=drug)
+
+    #Check to see if the form method is a get or post
+    if request.method == 'POST':
+        quantity = request.POST.get('quantity')
+        if quantity == "" :
+            quantity = 0
+        quantity = int(quantity)
+        PdPrescriberDrugs.objects.get_or_create(pdprescriber_id=prescriber_id, pddrugs_id=drug_obj.drugid, qty=quantity)
+
+    state_data = PdStatedata.objects.all()
+    specialty_data = PdSpecialty.objects.all()
+    prescriber_data = prescriber
+    prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + str(prescriber.npi))
+
+    context = {
+        "states" : state_data,
+        "specialties" : specialty_data,
+        "prescriber" : prescriber_data,
+        "prescriptions" : prescriptions_raw,
+        "isnew" : False
+    }
+
+    return render(request, 'webapp/updateprescriber.html', context)
 
 def aboutPageView(request) :
     return render(request, 'webapp/about.html')
