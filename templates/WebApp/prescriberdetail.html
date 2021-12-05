@@ -5,7 +5,7 @@
 <!-- Page Content-->
 <section class="py-5">
     <div class="container pt-5">
-        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'prescribers' %}">Back</a>
+        <a class="btn btn-secondary btn-lg px-4 me-sm-3" onClick="javascript:history.go(-1);">Back</a>
     </div>
     <div class="text-center mb-5">
         <h1 class="fw-bolder">{{ prescriber.fname }} {{ prescriber.lname }}</h1>
@@ -13,6 +13,9 @@
     </div>
     <div class="mx-5" ><div class="card mx-3" >
         <ul class="list-group list-group-flush">
+
+            <!-- NPI -->
+            <li class="list-group-item"><p class="text-muted" style="display:inline">National Provider Identifier: </p>{{ prescriber.npi }}</li>
 
             <!-- Gender -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">Gender: </p>
@@ -117,9 +120,9 @@
     
 
     <!-- Update and Delete Prescriber -->
-    <div class="container">
+    <div class="text-center container">
         <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'updateprescriber' prescriber_id=prescriber.npi %}">Update Prescriber</a>
-        <a class="btn btn-danger btn-lg px-4 me-sm-3" href="{% url 'index' %}">Delete Prescriber</a>
+        <a class="btn btn-danger btn-lg px-4 me-sm-3" href="{% url 'deleteprescriber' prescriber_id=prescriber.npi %}">Delete Prescriber</a>
     </div>
 
 </section>

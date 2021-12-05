@@ -19,8 +19,12 @@
 
         {% if isnew == False %}
 
+        <div class="container pt-4">
+            <h3 class="mb-0">Details</h3>
+        </div>
+
         <!-- Form -->
-        <form class="container mx-1" name="form" method="post" action="{% url 'updateandstoreprescriber' prescriber_id=prescriber.npi%}">
+        <form class="container mx-1" name="form" id="form" method="post" action="{% url 'updateandstoreprescriber' prescriber_id=prescriber.npi%}">
             {% csrf_token %}
             <div class="row my-3">
 
@@ -114,7 +118,7 @@
 
             <!-- Submit Button -->
             <div class="my-4">
-                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Update Prescriber Details</button>
+                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Save Details</button>
             </div>
         </form>
 
@@ -125,19 +129,21 @@
             <h3 class="mb-0">Specialties</h3>
             {% if not prescriber.specialties.all %}
             <p class="fw-normal text-muted">None</p>
+            {% else %}
+            <p class="fw-normal text-muted">Click on specialty to remove</p>
             {% endif %}
         </div>
         <div class="container px-4 mt-2 mb-5">
             <div class="row">
                 {% for specialty in prescriber.specialties.all %}
                 <div class="col-md-auto py-2">
-                    <a class="btn btn-outline-secondary">{{ specialty.title }}</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'removeprescriberspecialty' prescriber_id=prescriber.npi specialty=specialty.title is_new=isnew %}">{{ specialty.title }}</a>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <form class="container mx-1" name="form" method="post" action="{% url 'addprescriberspecialty' prescriber_id=prescriber.npi%}">
+        <form class="container mx-1" name="form" method="post" action="{% url 'addprescriberspecialty' prescriber_id=prescriber.npi is_new=isnew%}">
             {% csrf_token %}
             <div class="row my-3">
 
@@ -157,7 +163,7 @@
 
             <!-- Submit Button -->
             <div class="my-4">
-                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Add New Specialty</button>
+                <button class="btn btn-secondary btn-lg px-4 me-sm-3" type="submit">Add New Specialty</button>
             </div>
 
         </form>
@@ -167,6 +173,8 @@
             <h3 class="mb-0">Drugs</h3>
             {% if not prescriber.specialties.all %}
             <p class="fw-normal text-muted">None</p>
+            {% else %}
+            <p class="fw-normal text-muted">Click on drug to remove</p>
             {% endif %}
         </div>
         <div class="container px-4 mt-2 mb-5">
@@ -174,16 +182,16 @@
                 {% for drug in prescriptions %}
                 <div class="col-md-auto py-2">
                     {% if drug.isopioid == 'TRUE'%}
-                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug.pddrugs_id %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                    <a class="btn btn-outline-primary" href="{% url 'removeprescriberdrug' prescriber_id=prescriber.npi drug_id=drug.pddrugs_id is_new=isnew %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
                     {% else %}
-                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug.pddrugs_id %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'removeprescriberdrug' prescriber_id=prescriber.npi  drug_id=drug.pddrugs_id is_new=isnew %}">{{ drug.drugname|title }} ({{ drug.qty }})</a>
                     {% endif %}
                     </div>
                 {% endfor %}
             </div>
         </div>
 
-        <form class="container mx-1" name="form" method="post" action="{% url 'addprescriberdrug' prescriber_id=prescriber.npi%}">
+        <form class="container mx-1" name="form" method="post" action="{% url 'addprescriberdrug' prescriber_id=prescriber.npi is_new=isnew %}">
             {% csrf_token %}
             <div class="row my-3">
 
@@ -209,14 +217,15 @@
 
             <!-- Submit Button -->
             <div class="my-4">
-                <button class="btn btn-primary btn-lg px-4 me-sm-3" type="submit">Add New Drug</button>
+                <button class="btn btn-secondary btn-lg px-4 me-sm-3" type="submit">Add New Drug</button>
             </div>
 
         </form>
 
-        <div class="container">
+        <div class="container text-center">
             <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">Done</a>
         </div>
+
     </div>
 </section>
 {% endblock %}
