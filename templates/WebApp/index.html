@@ -55,14 +55,57 @@
 </section>
 <!-- Testimonial section-->
 <div class="py-5 bg-light">
-    <div class="container px-5 my-5">
-        <div class="row gx-5 justify-content-center">
-            <div class="col-lg-10 col-xl-7">
-                <div class="text-center">
-                    <div class="fs-4 mb-4 fst-italic">"Working with Start Bootstrap templates has saved me tons of development time when building new projects! Starting with a Bootstrap template just makes things easier!"</div>
-                    <div class="d-flex align-items-center justify-content-center">
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-black mb-2">Facts about the opioid epidemic</h1>
+                    <p class="lead fw-normal text-black-50 mb-4">Select your state below to learn facts about the opioid epidemic close to you:</p>
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control" list="state_list" id="state" name="state_select" placeholder="Type to search...">
+                                <datalist id="state_list">
+                                    {% for state in states %}
+                                        <option value="{{ state.state }}">{{ state.state }}</option>
+                                    {% endfor %}
+                                </datalist>
+                                <label for="state_select" class="form-label">State:</label>
+                            </div>
+                        </div>
+                        <a class="btn btn-primary btn-lg px-4 me-sm-3" href=" {% url "prescribers" %}">Go</a>
                     </div>
                 </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
+                <body>
+                    <div class='tableauPlaceholder' id='viz1638400610683' style='position: relative'><noscript>
+                        <a href='#'><img alt='Opioid Overdose Deaths by State in 2020 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NG&#47;NGCCPXQB3&#47;1_rss.png' style='border: none' />
+                        </a>
+                    </noscript>  
+                        <object class='tableauViz'  style='display:none;'>
+                            <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                            <param name='embed_code_version' value='3' /> <param name='path' value='shared&#47;NGCCPXQB3' />
+                            <param name='toolbar' value='yes' />
+                            <param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NG&#47;NGCCPXQB3&#47;1.png' />
+                            <param name='animate_transition' value='yes' />
+                            <param name='display_static_image' value='yes' />
+                            <param name='display_spinner' value='yes' />
+                            <param name='display_overlay' value='yes' />
+                            <param name='display_count' value='yes' />
+                            <param name='language' value='en-US' />
+                            <param name='filter' value='publish=yes' />
+                        </object>
+                    </div>                
+                    <script type='text/javascript'>  
+                    var divElement = document.getElementById('viz1638400610683');                    
+                    var vizElement = divElement.getElementsByTagName('object')[0];                    
+                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    
+                    var scriptElement = document.createElement('script');                    
+                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    
+                    vizElement.parentNode.insertBefore(scriptElement, vizElement);              
+                    </script>
+                </body>
             </div>
         </div>
     </div>
