@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5" src="{% static 'img/spilled_pills.jpeg'%}" alt="..." /></div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5" src="{% static 'img/spilled_pills_2.jpeg'%}" alt="..." /></div>
         </div>
     </div>
 </header>
@@ -29,22 +29,22 @@
             <div class="col-lg-8">
                 <div class="row gx-5 row-cols-1 row-cols-md-2">
                     <div class="col mb-5 h-100">
-                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-bar-chart-line"></i></div>
                         <h2 class="h1">274</h2>
                         <p class="mb-0">people on average died every day from a drug overdose in 2020?</p>
                     </div>
                     <div class="col mb-5 h-100">
-                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-graph-up"></i></div>
                         <h2 class="h1">56%</h2>
                         <p class="mb-0">is the perecent rise in drug overdose deaths since 2015?</p>
                     </div>
                     <div class="col mb-5 mb-md-0 h-100">
-                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-toggles2"></i></div>
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-calendar-week"></i></div>
                         <h2 class="h1">6</h2>
                         <p class="mb-0">days is all it takes for an opioid dependency to develop?</p>
                     </div>
                     <div class="col h-100">
-                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-toggles2"></i></div>
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-pie-chart"></i></div>
                         <h2 class="h">68%</h2>
                         <p class="mb-0">of drug overdoses involve opioids?</p>
                     </div>
@@ -62,18 +62,53 @@
                     <h1 class="display-5 fw-bolder text-black mb-2">Facts about the opioid epidemic</h1>
                     <p class="lead fw-normal text-black-50 mb-4">Select your state below to learn facts about the opioid epidemic close to you:</p>
                     <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
-                        <div class="col">
-                            <div class="form-floating">
-                                <input class="form-control" list="state_list" id="state" name="state_select" placeholder="Type to search...">
-                                <datalist id="state_list">
-                                    {% for state in states %}
-                                        <option value="{{ state.state }}">{{ state.state }}</option>
-                                    {% endfor %}
-                                </datalist>
-                                <label for="state_select" class="form-label">State:</label>
+                        <form name="form" method="get" id="state_search" action="{% url 'statesearch' %}">
+                            <div class="container">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input class="form-control" list="state_list" id="state_select" name="state_select" placeholder="Type to search...">
+                                        <datalist id="state_list">
+                                            {% for state in states %}
+                                                <option value="{{ state.state }}">{{ state.state }}</option>
+                                            {% endfor %}
+                                        </datalist>
+                                        <label for="state_select" class="form-label">State:</label>
+                                    </div>
+                                </div>
                             </div>
+                        </form>
+                        <div class="text-center mb-5">
+                            <button class="btn btn-primary btn-lg px-4 me-sm-3 justify-content-end" type="submit" form="state_search">Go</button>
                         </div>
-                        <a class="btn btn-primary btn-lg px-4 me-sm-3" href=" {% url "prescribers" %}">Go</a>
+                    </div>
+                    <div class="row gx-5">
+                        <div class="col-lg-4 mb-5">
+                            {% if state == '' %}
+                                <h2 class="h1">Check</h2>
+                                <p class="mb-0">where your state falls in terms of drug overdose deaths</p>
+                            {% else %}
+                                <h2 class="h1">#{{ state_rank }}</h2>
+                                <p class="mb-0">in the country for drug overdose deaths</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-4 mb-5">
+                            {% if state == '' %}
+                                <h2 class="h1">46,959</h2>
+                                <p class="mb-0">people died in the United States from a drug overdose in 2014</p>
+                            {% else %}
+                                <h2 class="h1">{{ state.deaths }}</h2>
+                                <p class="mb-0">people died in {{ state.state }} from a drug overdose in 2014</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-4 mb-5">
+                            {% if state == '' %}
+                                <h2 class="h1">4,921</h2>
+                                <p class="mb-0">physicians are licensed to prescribe opioids in the United States</p>
+                            {% else %}
+                                <h2 class="h1">{{ licensed_prescribers }}</h2>
+                                <p class="mb-0">physicians are licensed to prescribe opioids in {{ state.state }}</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -166,19 +201,19 @@
             </div>
             <div class="col-lg-4 mb-5">
                 <div class="card h-100 shadow border-0">
-                    <img class="card-img-top" src="{% static 'img/ncapdawebsite.png' %}" alt="..." />
+                    <img class="card-img-top" src="{% static 'img/fdawebsite.png' %}" alt="..." />
                     <div class="card-body p-4">
-                        <div class="badge bg-primary bg-gradient rounded-pill mb-2">Learn the signs</div>
-                        <a class="text-decoration-none link-dark stretched-link" target="_blank" href="https://ncapda.org/parents/drug-overdose/?gclid=Cj0KCQiAnaeNBhCUARIsABEee8VSHZVk6bQSGSbthZ-Gq13ES3U5SyL-AFBMB0AH8tyg1On777vObL8aAnDYEALw_wcB"><h5 class="card-title mb-3">Drug Overdose Response: Know the Signs</h5></a>
-                        <p class="card-text mb-0">Learn to recognize the causes, signs, and symptoms of an overdose.</p>
+                        <div class="badge bg-primary bg-gradient rounded-pill mb-2">Dispose</div>
+                        <a class="text-decoration-none link-dark stretched-link" target="_blank" href="https://www.fda.gov/consumers/consumer-updates/where-and-how-dispose-unused-medicines"><h5 class="card-title mb-3">Where and How to Dispose of Unused Medicines</h5></a>
+                        <p class="card-text mb-0">Learn how to safely dispose of your unused prescriptions through drug take back programs.</p>
                     </div>
                     <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
                         <div class="d-flex align-items-end justify-content-between">
                             <div class="d-flex align-items-center">
-                                <img class="rounded-circle me-3" src="{% static 'img/ncapdaPill.png' %}" width = "40" height="40" alt="..." />
+                                <img class="rounded-circle me-3" src="{% static 'img/fdaLogo.png' %}" width = "40" height="40" alt="..." />
                                 <div class="small">
-                                    <div class="fw-bold">National Coalition Against Prescription Drug Abuse</div>
-                                    <div class="text-muted">© 2021 &middot; NCAPDA</div>
+                                    <div class="fw-bold">U.S. Food and Drug Administration</div>
+                                    <div class="text-muted">April 21, 2021 &middot; Drug take back programs</div>
                                 </div>
                             </div>
                         </div>
