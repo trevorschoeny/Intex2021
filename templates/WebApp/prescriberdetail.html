@@ -35,7 +35,9 @@
             <li class="list-group-item"><p class="text-muted" style="display:inline">Credentials: </p>{{ prescriber.credentials }}</li>
 
             <!-- Specialists -->
-            {% if prescriber.specialties.all.count > 1 %}
+            {% if prescriber.specialties.all.count == 0 %}
+                <li class="list-group-item"><p class="text-muted" style="display:inline">Specialties: </p>None
+            {% elif prescriber.specialties.all.count > 1 %}
                 <li class="list-group-item"><p class="text-muted" style="display:inline">Specialties: </p>
             {% else %}
                 <li class="list-group-item"><p class="text-muted" style="display:inline">Specialty: </p>

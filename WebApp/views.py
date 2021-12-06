@@ -475,13 +475,26 @@ def prescriberDetailPageView(request, prescriber_id) :
     )
 
     prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + prescriber_id)
+    
+    total_prescriptions = 0
+    if totals :
+        total_prescriptions = totals[0]['total']
+
+    total_opioids = 0
+    if totals :
+        total_opioids = totals[0]['total']
+
+    opioid_percent = 'N/A'
+    if totals :
+        opioid_percent = round(totals[0]['percentopioid'] * 100)
+        
 
     context = {
         "drugs" : drug_data,
         "prescriber" : prescriber_data,
-        "total_prescriptions" : totals[0]['total'],
-        "total_opioids" : totals[0]['opioidtotal'],
-        "opioid_percent" : round(totals[0]['percentopioid'] * 100),
+        "total_prescriptions" : total_prescriptions,
+        "total_opioids" : total_opioids,
+        "opioid_percent" : opioid_percent,
         "prescriptions" : prescriptions_raw,
     }
 
@@ -663,7 +676,7 @@ def addPrescriberDrugPageView(request, prescriber_id, is_new) :
 
         quantity = request.POST.get('quantity')
         if quantity == "" :
-            quantity = 0
+            quantity = 1
         quantity = int(quantity)
         PdPrescriberDrugs.objects.get_or_create(pdprescriber_id=prescriber_id, pddrugs_id=drug_obj.drugid, qty=quantity)
 
