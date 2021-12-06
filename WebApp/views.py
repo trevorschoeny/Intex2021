@@ -1,3 +1,4 @@
+from os import stat
 from django.db.models.functions import Cast, Concat
 from django.db.models import FloatField, Value
 from django.db.models import Q
@@ -18,7 +19,6 @@ def indexPageView(request) :
     prescriber_data = ''
     licensed_prescribers = ''
     state_rank = 0
-    is_search = False
 
     country_deaths = 0
     total_op_prescribers = 0
@@ -42,7 +42,7 @@ def indexPageView(request) :
         "prescriber_data" : prescriber_data,
         "licensed_prescribers" : licensed_prescribers,
         "state_rank" : state_rank,
-        "is_search" : is_search,
+        "is_search" : False,
         "country_deaths" : country_deaths,
         "total_op_prescribers" : total_op_prescribers
     }
@@ -75,7 +75,10 @@ def indexSearchPageView(request) :
                 state_rank += 1
                 state_rank -= 4
 
-    is_search = True
+    state_deaths = state_select.deaths
+
+    state_deaths = "{:,}".format(state_deaths)
+    licensed_prescribers = "{:,}".format(licensed_prescribers)
             
     context = {
         "states" : state_data,
@@ -84,7 +87,8 @@ def indexSearchPageView(request) :
         "prescriber_data" : prescriber_data,
         "licensed_prescribers" : licensed_prescribers,
         "state_rank" : state_rank,
-        "is_search" : is_search,
+        "is_search" : True,
+        "state_deaths" : state_deaths,
         "country_deaths" : 0,
         "total_op_prescribers" : 0
     }
