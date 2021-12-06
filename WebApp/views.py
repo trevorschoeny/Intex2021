@@ -5,7 +5,7 @@ from django.db.models.aggregates import Sum, Count
 from django.shortcuts import render
 from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdPrescriberSpecialties, PdSpecialty, PdStatedata, PrescriberSpecialty
 import re
-import pandas as pd
+# import pandas as pd
 import pip._vendor.requests
 import json
 
