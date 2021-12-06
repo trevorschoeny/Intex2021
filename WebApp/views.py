@@ -1,7 +1,7 @@
 from django.db.models.functions import Cast, Concat
 from django.db.models import FloatField, Value
 from django.db.models import Q
-from django.db.models.aggregates import Sum 
+from django.db.models.aggregates import Sum, Count
 from django.shortcuts import render
 from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdPrescriberSpecialties, PdSpecialty, PdStatedata
 import pandas as pd
@@ -80,9 +80,16 @@ def prescribersPageView(request) :
 
 def prescriberSearchPageView(request) :
 
-    data = PdPrescriber.objects.all().annotate(search_name=Concat('fname', Value(' '), 'lname'))
+    # data = PdPrescriber.objects.all().annotate(search_name=Concat('fname', Value(' '), 'lname'))
     specialty_data = PdSpecialty.objects.all()
     state_data = PdStatedata.objects.all()
+
+    data = PdPrescriber.objects.all().annotate(
+        search_name=Concat('fname', Value(' '), 'lname'), 
+        total = Sum('pdprescriberdrugs__qty'),
+        opioidtotal = Sum('pdprescriberdrugs__qty', filter=Q(pdprescriberdrugs__pddrugs_id__isopioid='TRUE')),
+        percentopioid = Cast(Sum('pdprescriberdrugs__qty', filter=Q(pdprescriberdrugs__pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('pdprescriberdrugs__qty'), FloatField()),
+    )
 
     name_contains = request.GET.get('name_contains')
     npi_contains = request.GET.get('npi_contains')
@@ -112,29 +119,44 @@ def prescriberSearchPageView(request) :
         data = data.filter(specialties__title__icontains=specialty)
 
     if opioid_level != 'Select' :
-        totals = PdPrescriberDrugs.objects.values('pdprescriber_id').annotate(
-            total = Sum('qty'),
-            opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
-            percentopioid = Cast(Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('qty'), FloatField()),
-        )
-
-        df = pd.DataFrame(list(totals))
-        df['opioidtotal'] = df['opioidtotal'].fillna(0.0)
-        df['percentopioid'] = df['percentopioid'].fillna(0.0)
 
         if opioid_level == 'None' :
-            filtered = df.loc[(df.percentopioid == 0.0)]
+            data = data.filter(percentopioid=None)
+            pass
         elif opioid_level == 'Low' :
-            filtered = df.loc[(df.percentopioid > 0.0) & (df.percentopioid <= 0.2)]
+            data = data.filter(percentopioid__gte=0, percentopioid__lt=.2)
         elif opioid_level == 'Medium' :
-            filtered = df.loc[(df.percentopioid > 0.2) & (df.percentopioid <= 0.4)]
+            data = data.filter(percentopioid__gte=.2, percentopioid__lt=.4)
         elif opioid_level == 'High' :
-            filtered = df.loc[(df.percentopioid > 0.4) & (df.percentopioid <= 0.6)]
-        else :
-            filtered = df.loc[(df.percentopioid > 0.6)]
+            data = data.filter(percentopioid__gte=.4, percentopioid__lt=.6)
+        elif opioid_level == 'Very High' :
+            data = data.filter(percentopioid__gte=.6)
+            
+
+
+        # totals = PdPrescriberDrugs.objects.values('pdprescriber_id').annotate(
+        #     total = Sum('qty'),
+        #     opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
+        #     percentopioid = Cast(Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('qty'), FloatField()),
+        # )
+
+        # df = pd.DataFrame(list(totals))
+        # df['opioidtotal'] = df['opioidtotal'].fillna(0.0)
+        # df['percentopioid'] = df['percentopioid'].fillna(0.0)
+
+        # if opioid_level == 'None' :
+        #     filtered = df.loc[(df.percentopioid == 0.0)]
+        # elif opioid_level == 'Low' :
+        #     filtered = df.loc[(df.percentopioid > 0.0) & (df.percentopioid <= 0.2)]
+        # elif opioid_level == 'Medium' :
+        #     filtered = df.loc[(df.percentopioid > 0.2) & (df.percentopioid <= 0.4)]
+        # elif opioid_level == 'High' :
+        #     filtered = df.loc[(df.percentopioid > 0.4) & (df.percentopioid <= 0.6)]
+        # else :
+        #     filtered = df.loc[(df.percentopioid > 0.6)]
         
-        filtered = filtered.pdprescriber_id.unique().tolist()
-        data = data.filter(npi__in=filtered)
+        # filtered = filtered.pdprescriber_id.unique().tolist()
+        # data = data.filter(npi__in=filtered)
 
     if is_licensed != 'Select' :
         data = data.filter(isopioidprescriber=is_licensed)
@@ -451,12 +473,14 @@ def prescriberSearchPageView(request) :
     else:
         prediction = 0
 
+    # data = data.values('fname', 'search_name', named=True)
+
     context = {
         "prescribers" : data,
         "states" : state_data,
         "result_count" : result_count,
         "specialties" : specialty_data,
-        "predict" : prediction
+        "predict" : prediction,
     }
 
     return render(request, 'webapp/prescribers.html', context)
@@ -482,10 +506,10 @@ def prescriberDetailPageView(request, prescriber_id) :
 
     total_opioids = 0
     if totals :
-        total_opioids = totals[0]['total']
+        total_opioids = totals[0]['opioidtotal']
 
     opioid_percent = 'N/A'
-    if totals :
+    if total_opioids :
         opioid_percent = round(totals[0]['percentopioid'] * 100)
         
 
