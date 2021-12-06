@@ -20,17 +20,23 @@ def indexPageView(request) :
     licensed_prescribers = ''
     state_rank = 0
 
-    country_deaths = 0
-    total_op_prescribers = 0
+    # country_deaths = 0
+    # total_op_prescribers = 0
 
-    for state_ind in state_data :
-        if state_ind.deaths != None :
-            country_deaths += state_ind.deaths
+    # for state_ind in state_data :
+    #     if state_ind.deaths != None :
+    #         country_deaths += state_ind.deaths
 
-    for state_ind in state_data :
-        for prescriber in state_ind.pdprescriber_set.all() :
-            if prescriber.isopioidprescriber == 'TRUE' :
-                total_op_prescribers += 1
+    country_deaths = PdStatedata.objects.aggregate(Sum('deaths')).get('deaths__sum')
+
+    # for state_ind in state_data :
+    #     for prescriber in state_ind.pdprescriber_set.all() :
+    #         if prescriber.isopioidprescriber == 'TRUE' :
+    #             total_op_prescribers += 1
+
+    total_op_prescribers = PdPrescriber.objects.all()
+    total_op_prescribers = total_op_prescribers.filter(isopioidprescriber = 'TRUE')
+    total_op_prescribers = total_op_prescribers.count()
 
     country_deaths = "{:,}".format(country_deaths)
     total_op_prescribers = "{:,}".format(total_op_prescribers)
