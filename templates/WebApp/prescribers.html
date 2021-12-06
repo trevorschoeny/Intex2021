@@ -87,20 +87,6 @@
                     </div>
                 </div>
                     
-                {% comment %} <!-- Opioid Level -->
-                <div class="col">
-                    <div class="form-floating">
-                        <select class="form-select" id="opioid_level_select" name="opioid_level_select" aria-label="Opioid level select">
-                        <option selected>Select</option>
-                        <option value="1">None</option>
-                        <option value="2">Low</option>
-                        <option value="3">Medium</option>
-                        <option value="3">High</option>
-                        </select>
-                        <label for="opioid_level_select">Opioid Prescription Level</label>
-                    </div>
-                </div> {% endcomment %}
-                    
                 <!-- Lincensed for Opioid -->
                 <div class="col">
                     <div class="form-floating">
@@ -110,6 +96,21 @@
                         <option value="FALSE">No</option>
                         </select>
                         <label for="licensed_check">Licensed to sell opioid</label>
+                    </div>
+                </div>
+                    
+                <!-- Opioid Level -->
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select" id="opioid_level_select" name="opioid_level_select" aria-label="Opioid level select">
+                        <option selected>Select</option>
+                        <option value="None">None</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Very High">Very High</option>
+                        </select>
+                        <label for="opioid_level_select">Opioid Prescription Level</label>
                     </div>
                 </div>
             </div>

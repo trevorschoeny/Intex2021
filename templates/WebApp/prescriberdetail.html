@@ -62,12 +62,14 @@
             <li class="list-group-item"><p class="text-muted" style="display:inline">Percent of prescriptions that are opioids: </p>
                 {% if opioid_percent == 0 %}
                     No Opioids Prescribed
-                {% elif opioid_percent < 25 %}
+                {% elif opioid_percent < 20 %}
                     Low ({{ opioid_percent }}%)
-                {% elif opioid_percent < 75 %}
+                {% elif opioid_percent < 40 %}
                     Medium ({{ opioid_percent }}%)
-                {% else %}
+                {% elif opioid_percent < 60 %}
                     High ({{ opioid_percent }}%)
+                {% else %}
+                    Very High ({{ opioid_percent }}%)
                 {% endif %}
             </li>
             {% endif %}

@@ -4,6 +4,25 @@
 <!-- Page content-->
 <section class="py-5">
     <div class="container px-5">
+
+
+        <div class="row py-5">
+        {% for prescriber in prescribers %}
+            <p class="col-3">{{ prescriber.fname }} {{ prescriber.lname }}
+        {% endfor %}
+        
+        {% comment %} {% for objs in object_list %}
+
+            <p class="col-3">{{ objs.fname }} - {{ objs.pdprescriber_id }} - {{ objs.total }} - {{ objs.opioidtotal }} - {{ objs.percentopioid|floatformat:2 }} - {{ objs.pddrugs_id.isopioid }}</p>
+        
+        {% endfor %} {% endcomment %}
+
+
+        </div>
+
+
+
+
         <!-- Contact form-->
         <div class="bg-light rounded-3 py-5 px-4 px-md-5 mb-5">
             <div class="text-center mb-5">

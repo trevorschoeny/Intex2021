@@ -1,8 +1,13 @@
-from django.db.models import Q
+from django.db.models.functions import Cast
+from django.db.models import FloatField
+from django.db.models.functions import Round
+from django.db.models import Q, F
 from django.db.models.aggregates import Sum 
 from django.shortcuts import render
 from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdPrescriberSpecialties, PdSpecialty, PdStatedata
 import re
+
+import pandas as pd
 
 import pip._vendor.requests
 import json
@@ -80,21 +85,6 @@ def prescribersPageView(request) :
 def prescriberSearchPageView(request) :
 
     data = PdPrescriber.objects.all()
-    data_raw = PdPrescriber.objects.raw('''select *, (select sum(pd.qty)
-                                                from pd_prescriber p
-                                                    inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id
-                                                    inner join pd_drugs d on d.drugid = pd.pddrugs_id
-                                                where d.isopioid = 'TRUE'
-                                                    and pd.pdprescriber_id = p1.npi) / (select sum(pd.qty)
-                                                from pd_prescriber p
-                                                    inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id
-                                                    inner join pd_drugs d on d.drugid = pd.pddrugs_id
-                                                    and pd.pdprescriber_id = p1.npi) as opioidpercent, (select sum(pd.qty)
-                                                from pd_prescriber p
-                                                    inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id
-                                                    inner join pd_drugs d on d.drugid = pd.pddrugs_id
-                                                    and pd.pdprescriber_id = p1.npi) as dynamictotalprescriptions
-                                            from pd_prescriber p1''')
     specialty_data = PdSpecialty.objects.all()
     state_data = PdStatedata.objects.all()
 
@@ -109,7 +99,6 @@ def prescriberSearchPageView(request) :
 
     if name_contains != '' :
         data = data.filter( Q(fname__icontains=name_contains) | Q(lname__icontains=name_contains))
-        # data_raw = data_raw.raw("select * from data_raw")
 
     if npi_contains != '' :
         data = data.filter(npi__icontains=npi_contains)
@@ -127,7 +116,31 @@ def prescriberSearchPageView(request) :
         data = data.filter(specialties__title__icontains=specialty)
 
     if opioid_level != 'Select' :
-        pass
+        print(opioid_level)
+        totals = PdPrescriberDrugs.objects.values('pdprescriber_id').annotate(
+            total = Sum('qty'),
+            opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
+            percentopioid = Cast(Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('qty'), FloatField()),
+        )
+
+        df = pd.DataFrame(list(totals))
+        df['opioidtotal'] = df['opioidtotal'].fillna(0.0)
+        df['percentopioid'] = df['percentopioid'].fillna(0.0)
+
+        if opioid_level == 'None' :
+            filtered = df.loc[(df.percentopioid == 0.0)]
+        elif opioid_level == 'Low' :
+            filtered = df.loc[(df.percentopioid > 0.0) & (df.percentopioid <= 0.2)]
+        elif opioid_level == 'Medium' :
+            filtered = df.loc[(df.percentopioid > 0.2) & (df.percentopioid <= 0.4)]
+        elif opioid_level == 'High' :
+            filtered = df.loc[(df.percentopioid > 0.4) & (df.percentopioid <= 0.6)]
+        else :
+            filtered = df.loc[(df.percentopioid > 0.6)]
+        
+        filtered = filtered.pdprescriber_id.unique().tolist()
+        print(len(filtered))
+        data = data.filter(npi__in=filtered)
 
     if is_licensed != 'Select' :
         data = data.filter(isopioidprescriber=is_licensed)
@@ -461,28 +474,20 @@ def prescriberDetailPageView(request, prescriber_id) :
 
     # DYNAMIC DATA (Total Prescriptions, Total Opioid Prescriptions, Percent Opioid Prescriptions)
 
+    totals = PdPrescriberDrugs.objects.filter(pdprescriber_id=prescriber_id).values('pdprescriber_id').annotate(
+        total = Sum('qty'),
+        opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
+        percentopioid = Cast(Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('qty'), FloatField()),
+    )
+
     prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + prescriber_id)
-    total_prescriptions = 0
-    total_opioids = 0
-
-    for obj in prescriptions_raw:
-        total_prescriptions += obj.qty
-
-    for obj in prescriptions_raw:
-        if obj.isopioid == 'TRUE' :
-            total_opioids += obj.qty
-
-    if total_prescriptions > 0 :
-        opioid_percent = round((total_opioids / total_prescriptions) * 100)
-    else :
-        opioid_percent = 'N/A'
 
     context = {
         "drugs" : drug_data,
         "prescriber" : prescriber_data,
-        "total_prescriptions" : total_prescriptions,
-        "total_opioids" : total_opioids,
-        "opioid_percent" : opioid_percent,
+        "total_prescriptions" : totals[0]['total'],
+        "total_opioids" : totals[0]['opioidtotal'],
+        "opioid_percent" : round(totals[0]['percentopioid'] * 100),
         "prescriptions" : prescriptions_raw,
     }
 
@@ -782,4 +787,35 @@ def aboutPageView(request) :
     return render(request, 'webapp/about.html')
 
 def contactPageView(request) :
-    return render(request, 'webapp/contact.html')
+
+    prescribers = PdPrescriber.objects.all()
+
+    totals = PdPrescriberDrugs.objects.values('pdprescriber_id').annotate(
+        total = Sum('qty'),
+        opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
+        percentopioid = Cast(Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('qty'), FloatField()),
+    )
+
+    df = pd.DataFrame(list(totals))
+    df['opioidtotal'] = df['opioidtotal'].fillna(0.0)
+    df['percentopioid'] = df['percentopioid'].fillna(0.0)
+    filtered = df.loc[(df.opioidtotal >= 3000) & (df.opioidtotal <= 5000)]
+    filtered = filtered.pdprescriber_id.unique().tolist()
+
+    prescribers = prescribers.filter(npi__in=filtered)
+
+    # prescribers = PdPrescriber.objects.values()
+    # lookup = {obj['npi']: obj for obj in prescribers}
+
+    # totals2 = list(totals)
+    # for item in totals2:
+    #     prescriber = lookup[item['pdprescriber_id']]
+    #     item['fname'] = prescriber['fname']
+    #     item['lname'] = prescriber['lname']
+
+    context = {
+        "object_list" : totals,
+        "prescribers" : prescribers
+    }
+
+    return render(request, 'webapp/contact.html', context)
