@@ -82,6 +82,12 @@
     </div></div>
 
     <!-- Recommended Drug List -->
+    {% if value == 1 %}
+    <div class="container pt-4">
+        <a class="btn btn-outline-secondary" href="{% url 'loadRecDrugs' prescriber_id=prescriber.npi value=0%}">Load recommended prescription drugs</a>
+    </div>
+
+    {% else %}
     <div class="container pt-4">
         <h3 class="mb-0">Recommended Prescription Drugs</h3>
         <p class="fw-normal text-muted">(opioids shown in blue)</p>
@@ -112,6 +118,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Drug List -->
     <div class="container pt-4">
