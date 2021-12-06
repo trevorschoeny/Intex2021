@@ -1,14 +1,10 @@
-from django.db.models.functions import Cast
-from django.db.models import FloatField
-from django.db.models.functions import Round
-from django.db.models import Q, F
+from django.db.models.functions import Cast, Concat
+from django.db.models import FloatField, Value
+from django.db.models import Q
 from django.db.models.aggregates import Sum 
 from django.shortcuts import render
 from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdPrescriberSpecialties, PdSpecialty, PdStatedata
-import re
-
 import pandas as pd
-
 import pip._vendor.requests
 import json
 
@@ -84,7 +80,7 @@ def prescribersPageView(request) :
 
 def prescriberSearchPageView(request) :
 
-    data = PdPrescriber.objects.all()
+    data = PdPrescriber.objects.all().annotate(search_name=Concat('fname', Value(' '), 'lname'))
     specialty_data = PdSpecialty.objects.all()
     state_data = PdStatedata.objects.all()
 
@@ -98,7 +94,7 @@ def prescriberSearchPageView(request) :
     is_licensed = request.GET.get('licensed_check')
 
     if name_contains != '' :
-        data = data.filter( Q(fname__icontains=name_contains) | Q(lname__icontains=name_contains))
+        data = data.filter(search_name__icontains=name_contains)
 
     if npi_contains != '' :
         data = data.filter(npi__icontains=npi_contains)
@@ -116,7 +112,6 @@ def prescriberSearchPageView(request) :
         data = data.filter(specialties__title__icontains=specialty)
 
     if opioid_level != 'Select' :
-        print(opioid_level)
         totals = PdPrescriberDrugs.objects.values('pdprescriber_id').annotate(
             total = Sum('qty'),
             opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
@@ -139,7 +134,6 @@ def prescriberSearchPageView(request) :
             filtered = df.loc[(df.percentopioid > 0.6)]
         
         filtered = filtered.pdprescriber_id.unique().tolist()
-        print(len(filtered))
         data = data.filter(npi__in=filtered)
 
     if is_licensed != 'Select' :
