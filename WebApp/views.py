@@ -12,7 +12,60 @@ import json
 # Create your views here.
 
 def indexPageView(request) :
-    return render(request, 'webapp/index.html')
+    state_data = PdStatedata.objects.all()
+    state = ''
+    state_order_list = ''
+    prescriber_data = ''
+    licensed_prescribers = ''
+    state_rank = 0
+
+    context = {
+        "states" : state_data,
+        "state" : state,
+        "state_order_list" : state_order_list,
+        "prescriber_data" : prescriber_data,
+        "licensed_prescribers" : licensed_prescribers,
+        "state_rank" : state_rank
+    }
+
+    return render(request, 'webapp/index.html', context)
+
+def indexSearchPageView(request) :
+    state_data = PdStatedata.objects.all()
+    state_select = request.GET.get('state_select')
+    state_select = PdStatedata.objects.get(state = state_select)
+    state_order_list = PdStatedata.objects.order_by('-deaths')
+    prescriber_data = PdPrescriber.objects.all()
+    state_rank = 0
+    # licensed_query = "select count(*) from pd_prescriber where isopioidprescriber='TRUE' AND state = "
+    # licensed_query += state
+    # licensed_prescribers = PdPrescriber.objects.raw(licensed_query)
+
+    if state_select != '' :
+        prescriber_data = prescriber_data.filter(isopioidprescriber = 'TRUE')
+        prescriber_data = prescriber_data.filter(state = state_select)
+    else :
+        state_select = ''
+
+    licensed_prescribers = prescriber_data.count()
+    
+    if state_select != '' :
+        for iCount in (state_order_list) :
+            if iCount == state_select :
+                state_rank = list(state_order_list).index(iCount)
+                state_rank += 1
+                state_rank -= 4
+            
+    context = {
+        "states" : state_data,
+        "state" : state_select,
+        "state_order_list" : state_order_list,
+        "prescriber_data" : prescriber_data,
+        "licensed_prescribers" : licensed_prescribers,
+        "state_rank" : state_rank
+    }
+
+    return render(request, 'webapp/index.html', context)
 
 def drugsPageView(request) :
     data = PdDrugs.objects.all()
