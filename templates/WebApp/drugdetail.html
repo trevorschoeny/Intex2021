@@ -5,7 +5,7 @@
 <!-- Page Content-->
 <section class="container py-5">
     <div class="container pt-5">
-        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'drugs' %}">Back</a>
+        <a class="btn btn-secondary btn-lg px-4 me-sm-3" onClick="javascript:history.go(-1);">Back</a>
     </div>
     <div class="text-center mb-5">
         {% if drug.isopioid == 'True' %}
@@ -30,7 +30,7 @@
         <div class="row">
                 {% for prescriber in prescribers %}
                 <div class="col-md-auto py-2">
-                    <a class="btn btn-outline-secondary" href="{% url 'index' %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }} ({{ prescriber.qty}})</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }} ({{ prescriber.qty}})</a>
                 </div>
                 {% endfor %}
             </div>
@@ -43,11 +43,15 @@
     </div>
     <div class="container px-4 mt-2 mb-5">
         <div class="row">
-                {% for prescriber in prescribers %}
                 <div class="col-md-auto py-2">
-                    <a class="btn btn-outline-secondary" href="#">Recommended Provider</a>
+                    <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=doc1.npi %}">{{ doc1.fname }} {{doc1.lname}}</a>
                 </div>
-                {% endfor %}
+                <div class="col-md-auto py-2">
+                    <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=doc2.npi %}">{{ doc2.fname }} {{doc2.lname}}</a>
+                </div>
+                <div class="col-md-auto py-2">
+                    <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=doc3.npi %}">{{ doc3.fname }} {{doc3.lname}}</a>
+                </div>
             </div>
         </div>
     </div>

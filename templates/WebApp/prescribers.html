@@ -21,10 +21,18 @@
             <div class="row my-3">
 
                 <!-- Name -->
-                <div class="col-8">
+                <div class="col">
                     <div class="form-floating form-floating-group flex-grow-1">
                         <input class="form-control" id="name_contains" type="text" name="name_contains" placeholder="placeholder" value=""/>
                         <label for="name_contains">Name:</label>
+                    </div>
+                </div>
+
+                <!-- NPI -->
+                <div class="col">
+                    <div class="form-floating form-floating-group flex-grow-1">
+                        <input class="form-control" id="npi_contains" type="text" name="npi_contains" placeholder="placeholder" value=""/>
+                        <label for="name_contains">National Provider Identifier:</label>
                     </div>
                 </div>
 
@@ -41,7 +49,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row my-3">
                 
                 <!-- State -->
                 <div class="col">
@@ -79,29 +87,30 @@
                     </div>
                 </div>
                     
+                <!-- Lincensed for Opioid -->
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select" id="licensed_check" name="licensed_check" aria-label="Licensed to sell Opioid">
+                        <option selected>Select</option>
+                        <option value="TRUE">Yes</option>
+                        <option value="FALSE">No</option>
+                        </select>
+                        <label for="licensed_check">Licensed to sell opioid</label>
+                    </div>
+                </div>
+                    
                 <!-- Opioid Level -->
                 <div class="col">
                     <div class="form-floating">
                         <select class="form-select" id="opioid_level_select" name="opioid_level_select" aria-label="Opioid level select">
                         <option selected>Select</option>
-                        <option value="1">None</option>
-                        <option value="2">Low</option>
-                        <option value="3">Medium</option>
-                        <option value="3">High</option>
+                        <option value="None">None</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Very High">Very High</option>
                         </select>
                         <label for="opioid_level_select">Opioid Prescription Level</label>
-                    </div>
-                </div>
-            </div>
-            <div class="row py-3">
-                    
-                <!-- Licenced for Opioid -->
-                <div class="col">
-                    <div class="form-floating">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="licensed_check" name="licensed_check">
-                            <label class="form-check-label" for="licensed_check">Only show prescribers licensed to sell opioid</label>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -114,15 +123,20 @@
 
         <!-- Results -->
         <div class="container">
-            <p class="fw-normal text-muted">A prescriber with your search criteria is [NOT] likely to prescribe opioids.</p>
+            {% if predict == 0%}
+            <p class="fw-normal text-muted">A prescriber with your search criteria is NOT likely to prescribe opioids.</p>
+            {% endif %}
+            {% if predict == 1%}
+            <p class="fw-normal text-muted">A prescriber with your search criteria is likely to prescribe opioids.</p>
+            {% endif %}
             <br>
             <h3>{{ result_count }} Results:</h3>
-            <p class="lead fw-normal text-muted mb-0">Prescribers that have prescribed opioids are shown in blue.</p>
+            {% comment %} <p class="lead fw-normal text-muted mb-0">Prescribers that have prescribed opioids are shown in blue.</p> {% endcomment %}
             <div class="row">
                     {% for prescriber in prescribers %}
                     <div class="col-md-auto py-2">
                         {% if prescriber.opioidprescribe %}
-                                <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
+                                <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi%}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
                         {% else %}
                                 <a class="btn btn-outline-secondary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>                            
                         {% endif %}

@@ -163,7 +163,7 @@ class PdPrescriber(models.Model):
     isopioidprescriber = models.CharField(max_length=5)
     totalprescriptions = models.IntegerField(blank=True, null=True)
 
-    specialties = models.ManyToManyField('PdSpecialty')
+    specialties = models.ManyToManyField('PdSpecialty', through='PdPrescriberSpecialties')
     drugs = models.ManyToManyField('PdDrugs', through='PdPrescriberDrugs')
 
     def __str__(self):
@@ -185,6 +185,16 @@ class PdPrescriberDrugs(models.Model):
     class Meta:
         db_table = 'pd_prescriber_drugs'
         unique_together = (('pdprescriber', 'pddrugs'),)
+
+
+class PdPrescriberSpecialties(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    pdprescriber = models.ForeignKey(PdPrescriber, models.DO_NOTHING)
+    pdspecialty = models.ForeignKey('PdSpecialty', models.DO_NOTHING)
+
+    class Meta:
+        db_table = 'pd_prescriber_specialties'
+        unique_together = (('pdprescriber', 'pdspecialty'),)
 
 
 class PdSpecialty(models.Model):

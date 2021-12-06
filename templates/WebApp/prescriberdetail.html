@@ -5,7 +5,7 @@
 <!-- Page Content-->
 <section class="py-5">
     <div class="container pt-5">
-        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'prescribers' %}">Back</a>
+        <a class="btn btn-secondary btn-lg px-4 me-sm-3" onClick="javascript:history.go(-1);">Back</a>
     </div>
     <div class="text-center mb-5">
         <h1 class="fw-bolder">{{ prescriber.fname }} {{ prescriber.lname }}</h1>
@@ -13,6 +13,9 @@
     </div>
     <div class="mx-5" ><div class="card mx-3" >
         <ul class="list-group list-group-flush">
+
+            <!-- NPI -->
+            <li class="list-group-item"><p class="text-muted" style="display:inline">National Provider Identifier: </p>{{ prescriber.npi }}</li>
 
             <!-- Gender -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">Gender: </p>
@@ -32,7 +35,9 @@
             <li class="list-group-item"><p class="text-muted" style="display:inline">Credentials: </p>{{ prescriber.credentials }}</li>
 
             <!-- Specialists -->
-            {% if prescriber.specialties.all.count > 1 %}
+            {% if prescriber.specialties.all.count == 0 %}
+                <li class="list-group-item"><p class="text-muted" style="display:inline">Specialties: </p>None
+            {% elif prescriber.specialties.all.count > 1 %}
                 <li class="list-group-item"><p class="text-muted" style="display:inline">Specialties: </p>
             {% else %}
                 <li class="list-group-item"><p class="text-muted" style="display:inline">Specialty: </p>
@@ -54,18 +59,25 @@
             <!-- Total Prescriptions -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">Total prescriptions: </p>{{ total_prescriptions }}</li>
 
+            <!-- Total Opioid Prescriptions -->
+            <li class="list-group-item"><p class="text-muted" style="display:inline">Total opioid prescriptions: </p>{{ total_opioids }}</li>
+
+            {% if opioid_percent != 'N/A' %}
             <!-- Opioid Prescription Level -->
             <li class="list-group-item"><p class="text-muted" style="display:inline">Percent of prescriptions that are opioids: </p>
                 {% if opioid_percent == 0 %}
                     No Opioids Prescribed
-                {% elif opioid_percent < 25 %}
+                {% elif opioid_percent < 20 %}
                     Low ({{ opioid_percent }}%)
-                {% elif opioid_percent < 75 %}
+                {% elif opioid_percent < 40 %}
                     Medium ({{ opioid_percent }}%)
-                {% else %}
+                {% elif opioid_percent < 60 %}
                     High ({{ opioid_percent }}%)
+                {% else %}
+                    Very High ({{ opioid_percent }}%)
                 {% endif %}
             </li>
+            {% endif %}
         </ul>
     </div></div>
 
@@ -76,15 +88,27 @@
     </div>
     <div class="container px-4 mt-2 mb-5">
         <div class="row">
-                {% for drug in 3|times %}
                 <div class="col-md-auto py-2">
                     {% if drug.isopioid == 'TRUE'%}
-                        <a class="btn btn-outline-primary" href="{% url 'drugs' %}">Drug</a>
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug1.drugid %}">{{ drug1.drugname }}</a>
                     {% else %}
-                    <a class="btn btn-outline-secondary" href="{% url 'drugs' %}">Drug</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug1.drugid %}">{{ drug1.drugname }}</a>
                     {% endif %}
-                    </div>
-                {% endfor %}
+                </div>
+                <div class="col-md-auto py-2">
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug2.drugid %}">{{ drug2.drugname }}</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug2.drugid %}">{{ drug2.drugname }}</a>
+                    {% endif %}
+                </div>
+                <div class="col-md-auto py-2">
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug3.drugid %}">{{ drug3.drugname }}</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug3.drugid %}">{{ drug3.drugname }}</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -112,11 +136,12 @@
             </div>
         </div>
     </div>
+    
 
     <!-- Update and Delete Prescriber -->
-    <div class="container">
-        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'index' %}">Update Prescriber</a>
-        <a class="btn btn-danger btn-lg px-4 me-sm-3" href="{% url 'index' %}">Delete Prescriber</a>
+    <div class="text-center container">
+        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'updateprescriber' prescriber_id=prescriber.npi %}">Update Prescriber</a>
+        <a class="btn btn-danger btn-lg px-4 me-sm-3" href="{% url 'deleteprescriber' prescriber_id=prescriber.npi %}">Delete Prescriber</a>
     </div>
 
 </section>
