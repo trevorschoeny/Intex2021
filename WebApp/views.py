@@ -985,35 +985,4 @@ def aboutPageView(request) :
     return render(request, 'webapp/about.html')
 
 def contactPageView(request) :
-
-    prescribers = PdPrescriber.objects.all()
-
-    totals = PdPrescriberDrugs.objects.values('pdprescriber_id').annotate(
-        total = Sum('qty'),
-        opioidtotal = Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')),
-        percentopioid = Cast(Sum('qty', filter=Q(pddrugs_id__isopioid='TRUE')), FloatField()) / Cast(Sum('qty'), FloatField()),
-    )
-
-    df = pd.DataFrame(list(totals))
-    df['opioidtotal'] = df['opioidtotal'].fillna(0.0)
-    df['percentopioid'] = df['percentopioid'].fillna(0.0)
-    filtered = df.loc[(df.opioidtotal >= 3000) & (df.opioidtotal <= 5000)]
-    filtered = filtered.pdprescriber_id.unique().tolist()
-
-    prescribers = prescribers.filter(npi__in=filtered)
-
-    # prescribers = PdPrescriber.objects.values()
-    # lookup = {obj['npi']: obj for obj in prescribers}
-
-    # totals2 = list(totals)
-    # for item in totals2:
-    #     prescriber = lookup[item['pdprescriber_id']]
-    #     item['fname'] = prescriber['fname']
-    #     item['lname'] = prescriber['lname']
-
-    context = {
-        "object_list" : totals,
-        "prescribers" : prescribers
-    }
-
-    return render(request, 'webapp/contact.html', context)
+    return render(request, 'webapp/contact.html')
