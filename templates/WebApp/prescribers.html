@@ -127,7 +127,7 @@
                     {% for prescriber in prescribers %}
                     <div class="col-md-auto py-2">
                         {% if prescriber.opioidprescribe %}
-                                <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
+                                <a class="btn btn-outline-primary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi%}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>
                         {% else %}
                                 <a class="btn btn-outline-secondary" href="{% url 'prescriberdetail' prescriber_id=prescriber.npi %}">{{ prescriber.fname|format_me:"." }} {{ prescriber.lname|format_me:"." }}</a>                            
                         {% endif %}

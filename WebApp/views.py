@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.db.models.aggregates import Sum 
 from django.shortcuts import render
-from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdSpecialty, PdStatedata
+from WebApp.models import PdDrugs, PdPrescriber, PdPrescriberDrugs, PdSpecialty, PdStatedata, PrescriberSpecialty
 import re
 
 import pip._vendor.requests
@@ -52,9 +52,62 @@ def drugDetailPageView(request, drug_id) :
     p_query += "order by qty desc limit 10;"
     prescriber_data = PdPrescriber.objects.raw(p_query)
 
+    id = drug_data.drugid
+    name = drug_data.drugname
+    ope = drug_data.isopioid
+
+    url = "http://2fb70c50-8895-4258-9a95-bd50a010fedd.eastus2.azurecontainer.io/score"
+
+    payload = json.dumps({
+    "Inputs": {
+        "WebServiceInput4": [
+        {
+            "drugid": id,
+            "drugname": name,
+            "isopioid": ope
+        }
+        ],
+        "WebServiceInput0": [
+        {
+            "pddrugs_id": id,
+            "pdprescriber_id": 1003008475,
+            "qty": 11
+        }
+        ],
+        "WebServiceInput3": [
+        {
+            "pdprescriber_id": 1003008475,
+            "gender": "F",
+            "state": "GA",
+            "pdspecialty_id": "Nurse Practitioner",
+            "isopioidprescriber": "TRUE",
+            "Cuberoot(totalprescriptions)": 12.918623821828756
+        }
+        ]
+    },
+    "GlobalParameters": {}
+    })
+    headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer 5QXsEc2OEesOIaOJbBnhrwiDUoHGJ9c4'
+    }
+
+    response = pip._vendor.requests.request("POST", url, headers=headers, data=payload)
+
+    json_data = json.loads(response.text)
+
+    dic = json_data['Results']['WebServiceOutput0'][0]
+
+    doc1 = PdPrescriber.objects.get(npi = dic ['Recommended Item 1'])
+    doc2 = PdPrescriber.objects.get(npi = dic ['Recommended Item 2'])
+    doc3 = PdPrescriber.objects.get(npi = dic ['Recommended Item 3'])
+
     context = {
         "drug" : drug_data,
-        "prescribers" : prescriber_data
+        "prescribers" : prescriber_data,
+        "doc1" : doc1,
+        "doc2" : doc2,
+        "doc3" : doc3
     }
 
     return render(request, 'webapp/drugdetail.html', context)
@@ -226,6 +279,9 @@ def prescriberSearchPageView(request) :
         genderF = 1
         genderM = 0
 
+    if is_licensed == "TRUE" :
+        isopioidprescriber = 1
+
     if state == "Alaska" :
         AK = 1
     elif state == 'Alabama' :
@@ -331,7 +387,7 @@ def prescriberSearchPageView(request) :
         {
             "isopioidprescriber": isopioidprescriber,
             "Ope": 0, #Keep this feature 0 always in the application
-            "Cuberoot(totalprescriptions)": 12.918623821828756,
+            "Cuberoot(totalprescriptions)": 12.918623821828756, #fix later?
             "gender-F": genderF,
             "gender-M": genderM,
             "state-AK": AK,
@@ -454,6 +510,7 @@ def prescriberDetailPageView(request, prescriber_id) :
 
     prescriber_data = PdPrescriber.objects.get(npi = prescriber_id)
     drug_data = PdDrugs.objects.all()
+    specialty_data = PrescriberSpecialty.objects.get(prescriber = prescriber_id)
 
     # DYNAMIC DATA (Total Prescriptions, Total Opioid Prescriptions, Percent Opioid Prescriptions)
 
@@ -470,13 +527,69 @@ def prescriberDetailPageView(request, prescriber_id) :
 
     opioid_percent = round((total_opioids / total_prescriptions) * 100)
 
+    root = prescriber_data.totalprescriptions**(1/3)
+    gender = prescriber_data.gender
+    npi = prescriber_data.npi
+    specialty = str(specialty_data.specialty_title)
+    state = str(prescriber_data.state)
+    isopioidprescriber = prescriber_data.isopioidprescriber
+
+    url = "http://fa1e493f-8471-4ed1-b3ea-bbe9d108441b.eastus2.azurecontainer.io/score"
+
+    payload = json.dumps({
+    "Inputs": {
+        "WebServiceInput4": [
+        {
+            "pdprescriber_id": npi,
+            "drugname": "FLUTICASONE PROPIONATE",
+            "LnPlus1(qty)": 2.4849066497880004
+        }
+        ],
+        "WebServiceInput0": [
+        {
+            "pdprescriber_id": npi,
+            "gender": gender,
+            "state": state,
+            "pdspecialty_id": specialty,
+            "isopioidprescriber": isopioidprescriber,
+            "Cuberoot(totalprescriptions)": root
+        }
+        ],
+        "WebServiceInput3": [
+        {
+            "drugid": 90,
+            "drugname": "LISINOPRIL",
+            "isopioid": "FALSE"
+        }
+        ]
+    },
+    "GlobalParameters": {}
+    })
+    headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer KezFpgSSirxuebKhBllafIDIMC1kpftZ'
+    }
+
+    response = pip._vendor.requests.request("POST", url, headers=headers, data=payload)
+
+    json_data = json.loads(response.text)
+
+    dic = json_data['Results']['WebServiceOutput0'][0]
+
+    drug1 = PdDrugs.objects.get(drugname = dic ['Recommended Item 1'])
+    drug2 = PdDrugs.objects.get(drugname = dic ['Recommended Item 2'])
+    drug3 = PdDrugs.objects.get(drugname = dic ['Recommended Item 3'])
+
     context = {
         "drugs" : drug_data,
         "prescriber" : prescriber_data,
         "total_prescriptions" : total_prescriptions,
         "total_opioids" : total_opioids,
         "opioid_percent" : opioid_percent,
-        "prescriptions" : prescriptions_raw
+        "prescriptions" : prescriptions_raw,
+        "drug1" : drug1,
+        "drug2" : drug2,
+        "drug3" : drug3
     }
 
     return render(request, 'webapp/prescriberdetail.html', context)

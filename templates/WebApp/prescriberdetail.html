@@ -76,15 +76,27 @@
     </div>
     <div class="container px-4 mt-2 mb-5">
         <div class="row">
-                {% for drug in 3|times %}
                 <div class="col-md-auto py-2">
                     {% if drug.isopioid == 'TRUE'%}
-                        <a class="btn btn-outline-primary" href="{% url 'drugs' %}">Drug</a>
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug1.drugid %}">{{ drug1.drugname }}</a>
                     {% else %}
-                    <a class="btn btn-outline-secondary" href="{% url 'drugs' %}">Drug</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug1.drugid %}">{{ drug1.drugname }}</a>
                     {% endif %}
-                    </div>
-                {% endfor %}
+                </div>
+                <div class="col-md-auto py-2">
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug2.drugid %}">{{ drug2.drugname }}</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug2.drugid %}">{{ drug2.drugname }}</a>
+                    {% endif %}
+                </div>
+                <div class="col-md-auto py-2">
+                    {% if drug.isopioid == 'TRUE'%}
+                        <a class="btn btn-outline-primary" href="{% url 'drugdetail' drug_id=drug3.drugid %}">{{ drug3.drugname }}</a>
+                    {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'drugdetail' drug_id=drug3.drugid %}">{{ drug3.drugname }}</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
