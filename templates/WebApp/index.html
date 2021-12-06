@@ -81,28 +81,34 @@
                             <button class="btn btn-primary btn-lg px-4 me-sm-3 justify-content-end" type="submit" form="state_search">Go</button>
                         </div>
                     </div>
+                    {% if is_search %} 
+                        <div class="col-lg-4 mb-5 mb-lg-0"><h2 class="fw-bolder mb-0">{{ state.state }}</h2></div>
+                        <br>
+                    {% endif %}
                     <div class="row gx-5">
-                        <div class="col-lg-4 mb-5">
+                        {% if is_search %}
+                        <div class="col">
                             {% if state == '' %}
-                                <h2 class="h1">Check</h2>
+                                <h2 class="h1">{{ country }}</h2>
                                 <p class="mb-0">where your state falls in terms of drug overdose deaths</p>
                             {% else %}
                                 <h2 class="h1">#{{ state_rank }}</h2>
                                 <p class="mb-0">in the country for drug overdose deaths</p>
                             {% endif %}
                         </div>
-                        <div class="col-lg-4 mb-5">
+                        {% endif %}
+                        <div class="col">
                             {% if state == '' %}
-                                <h2 class="h1">46,959</h2>
+                                <h2 class="h1">{{ country_deaths }}</h2>
                                 <p class="mb-0">people died in the United States from a drug overdose in 2014</p>
                             {% else %}
                                 <h2 class="h1">{{ state.deaths }}</h2>
                                 <p class="mb-0">people died in {{ state.state }} from a drug overdose in 2014</p>
                             {% endif %}
                         </div>
-                        <div class="col-lg-4 mb-5">
+                        <div class="col">
                             {% if state == '' %}
-                                <h2 class="h1">4,921</h2>
+                                <h2 class="h1">{{ total_op_prescribers }}</h2>
                                 <p class="mb-0">physicians are licensed to prescribe opioids in the United States</p>
                             {% else %}
                                 <h2 class="h1">{{ licensed_prescribers }}</h2>

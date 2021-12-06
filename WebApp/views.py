@@ -18,6 +18,22 @@ def indexPageView(request) :
     prescriber_data = ''
     licensed_prescribers = ''
     state_rank = 0
+    is_search = False
+
+    country_deaths = 0
+    total_op_prescribers = 0
+
+    for state_ind in state_data :
+        if state_ind.deaths != None :
+            country_deaths += state_ind.deaths
+
+    for state_ind in state_data :
+        for prescriber in state_ind.pdprescriber_set.all() :
+            if prescriber.isopioidprescriber == 'TRUE' :
+                total_op_prescribers += 1
+
+    country_deaths = "{:,}".format(country_deaths)
+    total_op_prescribers = "{:,}".format(total_op_prescribers)
 
     context = {
         "states" : state_data,
@@ -25,7 +41,10 @@ def indexPageView(request) :
         "state_order_list" : state_order_list,
         "prescriber_data" : prescriber_data,
         "licensed_prescribers" : licensed_prescribers,
-        "state_rank" : state_rank
+        "state_rank" : state_rank,
+        "is_search" : is_search,
+        "country_deaths" : country_deaths,
+        "total_op_prescribers" : total_op_prescribers
     }
 
     return render(request, 'webapp/index.html', context)
@@ -55,6 +74,8 @@ def indexSearchPageView(request) :
                 state_rank = list(state_order_list).index(iCount)
                 state_rank += 1
                 state_rank -= 4
+
+    is_search = True
             
     context = {
         "states" : state_data,
@@ -62,7 +83,10 @@ def indexSearchPageView(request) :
         "state_order_list" : state_order_list,
         "prescriber_data" : prescriber_data,
         "licensed_prescribers" : licensed_prescribers,
-        "state_rank" : state_rank
+        "state_rank" : state_rank,
+        "is_search" : is_search,
+        "country_deaths" : 0,
+        "total_op_prescribers" : 0
     }
 
     return render(request, 'webapp/index.html', context)
