@@ -449,7 +449,7 @@ def prescriberSearchPageView(request) :
     elif state == 'Wyoming' :
         WY = 1
 
-    url = "http://865a706f-ddaa-4d50-bd71-4cd909771a7f.westus.azurecontainer.io/score"
+    url = "http://f24fc014-ff28-4ed5-9e8f-f9c5579d56a1.westus.azurecontainer.io/score"
 
     payload = json.dumps({
     "Inputs": {
@@ -550,7 +550,7 @@ def prescriberSearchPageView(request) :
     })
     headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ctSJxwqI6zUw2wB2rfhwRkoMy8YHf91w'
+    'Authorization': 'Bearer JFWo0PAHAFrxiajf7gcST4FyihFKafTR'
     }
 
     response = pip._vendor.requests.request("POST", url, headers=headers, data=payload)
@@ -566,14 +566,14 @@ def prescriberSearchPageView(request) :
     else:
         prediction = 0
 
-    # data = data.values('fname', 'search_name', named=True)
+    #data = data.values('fname', 'search_name', named=True)
 
     context = {
         "prescribers" : data,
         "states" : state_data,
         "result_count" : result_count,
         "specialties" : specialty_data,
-        "predict" : prediction,
+        "predict" : prediction
     }
 
     return render(request, 'webapp/prescribers.html', context)
