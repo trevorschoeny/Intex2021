@@ -582,7 +582,6 @@ def prescriberDetailPageView(request, prescriber_id) :
 
     prescriber_data = PdPrescriber.objects.get(npi = prescriber_id)
     drug_data = PdDrugs.objects.all()
-    specialty_data = PrescriberSpecialty.objects.get(prescriber = prescriber_id)
     value = 1
 
     # DYNAMIC DATA (Total Prescriptions, Total Opioid Prescriptions, Percent Opioid Prescriptions)
@@ -606,14 +605,6 @@ def prescriberDetailPageView(request, prescriber_id) :
     opioid_percent = 'N/A'
     if total_opioids :
         opioid_percent = round(totals[0]['percentopioid'] * 100)
-        
-
-    root = prescriber_data.totalprescriptions**(1/3)
-    gender = prescriber_data.gender
-    npi = prescriber_data.npi
-    specialty = str(specialty_data.specialty_title)
-    state = str(prescriber_data.state)
-    isopioidprescriber = prescriber_data.isopioidprescriber
 
     context = {
         "drugs" : drug_data,

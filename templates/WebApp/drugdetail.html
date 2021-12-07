@@ -8,7 +8,7 @@
         <a class="btn btn-secondary btn-lg px-4 me-sm-3" onClick="javascript:history.go(-1);">Back</a>
     </div>
     <div class="text-center mb-5">
-        {% if drug.isopioid == 'True' %}
+        {% if drug.isopioid == 'TRUE' %}
         <h1 class="fw-bolder"><div class="text-primary">{{ drug.drugname|format_me:"." }}</div></h1>
             <p class="lead fw-normal text-muted mb-0">Opioid Prescription Drug</p>
         {% else %}
