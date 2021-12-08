@@ -99,7 +99,7 @@ def indexSearchPageView(request) :
         "total_op_prescribers" : 0
     }
 
-    return render(request, 'webapp/index.html', context)
+    return render(request, 'WebApp/index.html', context)
 
 def drugsPageView(request) :
     data = PdDrugs.objects.all()
@@ -111,7 +111,7 @@ def drugsPageView(request) :
         "result_count" : result_count
     }
 
-    return render(request, 'webapp/drugs.html', context)
+    return render(request, 'WebApp/drugs.html', context)
 
 def drugSearchPageView(request) :
 
@@ -132,7 +132,7 @@ def drugSearchPageView(request) :
         "result_count" : result_count
     }
 
-    return render(request, 'webapp/drugs.html', context)
+    return render(request, 'WebApp/drugs.html', context)
 
 def drugDetailPageView(request, drug_id) :
     drug_data = PdDrugs.objects.get(drugid = drug_id)
@@ -148,7 +148,7 @@ def drugDetailPageView(request, drug_id) :
         "value" : value
     }
 
-    return render(request, 'webapp/drugdetail.html', context)
+    return render(request, 'WebApp/drugdetail.html', context)
 
 def prescribersPageView(request) :
 
@@ -166,7 +166,7 @@ def prescribersPageView(request) :
         "specialties" : specialty_data
     }
 
-    return render(request, 'webapp/prescribers.html', context)
+    return render(request, 'WebApp/prescribers.html', context)
 
 def prescriberSearchPageView(request) :
 
@@ -576,7 +576,7 @@ def prescriberSearchPageView(request) :
         "predict" : prediction
     }
 
-    return render(request, 'webapp/prescribers.html', context)
+    return render(request, 'WebApp/prescribers.html', context)
 
 def prescriberDetailPageView(request, prescriber_id) :
 
@@ -616,7 +616,7 @@ def prescriberDetailPageView(request, prescriber_id) :
         "value" :value
     }
 
-    return render(request, 'webapp/prescriberdetail.html', context)
+    return render(request, 'WebApp/prescriberdetail.html', context)
 
 def addPrescriberPageView(request):
     prescribers = PdPrescriber.objects.all()
@@ -629,7 +629,7 @@ def addPrescriberPageView(request):
         "specialties" : specialty_data
     }
 
-    return render(request, 'webapp/addprescriber.html', context)
+    return render(request, 'WebApp/addprescriber.html', context)
 
 def storePrescriberPageView(request):
     state_data = PdStatedata.objects.all()
@@ -681,7 +681,7 @@ def storePrescriberPageView(request):
         "isnew" : True
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)  
+    return render(request, 'WebApp/updateprescriber.html', context)  
 
 def updatePrescriberPageView(request, prescriber_id):
     prescriber_data = PdPrescriber.objects.get(npi = prescriber_id)
@@ -699,7 +699,7 @@ def updatePrescriberPageView(request, prescriber_id):
         "drugs" : drugs
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)  
+    return render(request, 'WebApp/updateprescriber.html', context)  
 
 def updateAndStorePrescriberPageView(request, prescriber_id):
     prescriber = PdPrescriber.objects.get(npi = prescriber_id)
@@ -744,7 +744,7 @@ def updateAndStorePrescriberPageView(request, prescriber_id):
         "drugs" : drugs
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)
+    return render(request, 'WebApp/updateprescriber.html', context)
 
 def addPrescriberSpecialtyPageView(request, prescriber_id, is_new) :
 
@@ -779,7 +779,7 @@ def addPrescriberSpecialtyPageView(request, prescriber_id, is_new) :
         "drugs" : drugs
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)
+    return render(request, 'WebApp/updateprescriber.html', context)
 
 def addPrescriberDrugPageView(request, prescriber_id, is_new) :
 
@@ -818,7 +818,7 @@ def addPrescriberDrugPageView(request, prescriber_id, is_new) :
         "drugs" : drugs
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)
+    return render(request, 'WebApp/updateprescriber.html', context)
 
 def deletePrescriberPageView(request, prescriber_id) :
 
@@ -846,7 +846,7 @@ def deletePrescriberPageView(request, prescriber_id) :
         "specialties" : specialty_data
     }
 
-    return render(request, 'webapp/prescribers.html', context)
+    return render(request, 'WebApp/prescribers.html', context)
 
 def removePrescriberDrugPageView(request, prescriber_id, drug_id, is_new) :
 
@@ -876,7 +876,7 @@ def removePrescriberDrugPageView(request, prescriber_id, drug_id, is_new) :
         "drugs" : drugs
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)
+    return render(request, 'WebApp/updateprescriber.html', context)
 
 def removePrescriberSpecialty(request, prescriber_id, specialty, is_new) :
 
@@ -906,13 +906,13 @@ def removePrescriberSpecialty(request, prescriber_id, specialty, is_new) :
         "drugs" : drugs
     }
 
-    return render(request, 'webapp/updateprescriber.html', context)
+    return render(request, 'WebApp/updateprescriber.html', context)
 
 def aboutPageView(request) :
-    return render(request, 'webapp/about.html')
+    return render(request, 'WebApp/about.html')
 
 def contactPageView(request) :
-    return render(request, 'webapp/contact.html')
+    return render(request, 'WebApp/contact.html')
 
 def loadRecDrugsView(request, prescriber_id, value) :
 
@@ -1010,7 +1010,7 @@ def loadRecDrugsView(request, prescriber_id, value) :
         "value" : value
     }
 
-    return render(request, 'webapp/prescriberdetail.html', context)
+    return render(request, 'WebApp/prescriberdetail.html', context)
 
 def loadRecDocView(request, drug_id, value) :
     drug_data = PdDrugs.objects.get(drugid = drug_id)
@@ -1079,4 +1079,4 @@ def loadRecDocView(request, drug_id, value) :
         "value" : value
     }
 
-    return render(request, 'webapp/drugdetail.html', context)
+    return render(request, 'WebApp/drugdetail.html', context)
