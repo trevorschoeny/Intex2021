@@ -53,7 +53,7 @@ def indexPageView(request) :
         "total_op_prescribers" : total_op_prescribers
     }
 
-    return render(request, 'webapp/index.html', context)
+    return render(request, 'WebApp/index.html', context)
 
 def indexSearchPageView(request) :
     state_data = PdStatedata.objects.all()
