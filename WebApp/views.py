@@ -593,7 +593,7 @@ def prescriberDetailPageView(request, prescriber_id) :
     )
 
     prescriptions_raw = PdPrescriberDrugs.objects.raw("select pd.id, drugname, qty, isopioid from pd_prescriber p inner join pd_prescriber_drugs pd on p.npi = pd.pdprescriber_id inner join pd_drugs d on d.drugid = pd.pddrugs_id where npi = " + prescriber_id)
-    
+     
     total_prescriptions = 0
     if totals :
         total_prescriptions = totals[0]['total']
