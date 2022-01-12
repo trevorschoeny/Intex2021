@@ -123,13 +123,13 @@
 
         <!-- Results -->
         <div class="container">
-            {% if predict == 0%}
+            {% comment %} {% if predict == 0%}
             <p class="fw-normal text-muted">A prescriber with your search criteria is NOT likely to prescribe opioids.</p>
             {% endif %}
             {% if predict == 1%}
             <p class="fw-normal text-muted">A prescriber with your search criteria is likely to prescribe opioids.</p>
             {% endif %}
-            <br>
+            <br> {% endcomment %}
             <h3>{{ result_count }} Results:</h3>
             {% comment %} <p class="lead fw-normal text-muted mb-0">Prescribers that have prescribed opioids are shown in blue.</p> {% endcomment %}
             <div class="row">

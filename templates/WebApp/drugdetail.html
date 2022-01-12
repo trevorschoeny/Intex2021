@@ -38,7 +38,7 @@
     </div>
     
     <!-- Recommended Providers -->
-    {% if value == 1 %}
+    {% comment %} {% if value == 1 %}
     <div class="container pt-4">
         <a class="btn btn-outline-secondary" href="{% url 'loadRecDoc' drug_id=drug.drugid value=0%}">Load recommended providers</a>
     </div>
@@ -61,6 +61,6 @@
             </div>
         </div>
     </div>
-    {% endif %}
+    {% endif %} {% endcomment %}
 </section>
 {% endblock %}
